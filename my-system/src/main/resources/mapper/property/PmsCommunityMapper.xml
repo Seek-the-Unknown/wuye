@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.property.mapper.PmsCommunityMapper">
+    
+    <resultMap type="PmsCommunity" id="PmsCommunityResult">
+        <result property="communityId"    column="community_id"    />
+        <result property="communityName"  column="community_name"  />
+        <result property="communityCode"  column="community_code"  />
+        <result property="address"        column="address"         />
+        <result property="developer"      column="developer"       />
+        <result property="propertyCompany" column="property_company" />
+        <result property="status"         column="status"          />
+        <result property="delFlag"        column="del_flag"        />
+        <result property="createBy"       column="create_by"       />
+        <result property="createTime"     column="create_time"     />
+        <result property="updateBy"       column="update_by"       />
+        <result property="updateTime"     column="update_time"     />
+        <result property="remark"         column="remark"          />
+    </resultMap>
+
+    <sql id="selectPmsCommunityVo">
+        select community_id, community_name, community_code, address, developer, property_company, status, del_flag, create_by, create_time, update_by, update_time, remark from pms_community
+    </sql>
+
+    <select id="selectPmsCommunityList" parameterType="PmsCommunity" resultMap="PmsCommunityResult">
+        <include refid="selectPmsCommunityVo"/>
+        <where>  
+            del_flag = '0'
+            <if test="communityName != null  and communityName != ''"> and community_name like concat('%', #{communityName}, '%')</if>
+            <if test="communityCode != null  and communityCode != ''"> and community_code = #{communityCode}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectPmsCommunityByCommunityId" parameterType="Long" resultMap="PmsCommunityResult">
+        <include refid="selectPmsCommunityVo"/>
+        where community_id = #{communityId} and del_flag = '0'
+    </select>
+        
+    <insert id="insertPmsCommunity" parameterType="PmsCommunity" useGeneratedKeys="true" keyProperty="communityId">
+        insert into pms_community
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="communityName != null and communityName != ''">community_name,</if>
+            <if test="communityCode != null and communityCode != ''">community_code,</if>
+            <if test="address != null">address,</if>
+            <if test="developer != null">developer,</if>
+            <if test="propertyCompany != null">property_company,</if>
+            <if test="status != null">status,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="communityName != null and communityName != ''">#{communityName},</if>
+            <if test="communityCode != null and communityCode != ''">#{communityCode},</if>
+            <if test="address != null">#{address},</if>
+            <if test="developer != null">#{developer},</if>
+            <if test="propertyCompany != null">#{propertyCompany},</if>
+            <if test="status != null">#{status},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updatePmsCommunity" parameterType="PmsCommunity">
+        update pms_community
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="communityName != null and communityName != ''">community_name = #{communityName},</if>
+            <if test="communityCode != null and communityCode != ''">community_code = #{communityCode},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="developer != null">developer = #{developer},</if>
+            <if test="propertyCompany != null">property_company = #{propertyCompany},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where community_id = #{communityId}
+    </update>
+
+    <delete id="deletePmsCommunityByCommunityId" parameterType="Long">
+        update pms_community set del_flag = '2' where community_id = #{communityId}
+    </delete>
+
+    <delete id="deletePmsCommunityByCommunityIds" parameterType="String">
+        update pms_community set del_flag = '2' where community_id in 
+        <foreach item="communityId" collection="array" open="(" separator="," close=")">
+            #{communityId}
+        </foreach>
+    </delete>
+</mapper>

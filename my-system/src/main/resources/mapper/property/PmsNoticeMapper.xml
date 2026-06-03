@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.property.mapper.PmsNoticeMapper">
+
+    <resultMap type="PmsNotice" id="PmsNoticeResult">
+        <result property="noticeId"      column="notice_id"      />
+        <result property="communityId"   column="community_id"   />
+        <result property="noticeTitle"   column="notice_title"   />
+        <result property="noticeType"    column="notice_type"    />
+        <result property="noticeContent" column="notice_content" />
+        <result property="status"        column="status"         />
+        <result property="publishTime"   column="publish_time"   />
+        <result property="delFlag"       column="del_flag"       />
+        <result property="createBy"      column="create_by"      />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"      column="update_by"      />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"        column="remark"         />
+        <result property="communityName" column="community_name" />
+    </resultMap>
+
+    <sql id="selectPmsNoticeVo">
+        select n.notice_id, n.community_id, n.notice_title, n.notice_type, n.notice_content,
+               n.status, n.publish_time, n.del_flag, n.create_by, n.create_time, n.update_by, n.update_time, n.remark,
+               c.community_name
+        from pms_notice n
+        left join pms_community c on n.community_id = c.community_id
+    </sql>
+
+    <select id="selectPmsNoticeList" parameterType="PmsNotice" resultMap="PmsNoticeResult">
+        <include refid="selectPmsNoticeVo"/>
+        <where>
+            and n.del_flag = '0'
+            <if test="noticeTitle != null and noticeTitle != ''">and n.notice_title like concat('%', #{noticeTitle}, '%')</if>
+            <if test="noticeType != null and noticeType != ''">and n.notice_type = #{noticeType}</if>
+            <if test="status != null and status != ''">and n.status = #{status}</if>
+            <if test="communityId != null">and n.community_id = #{communityId}</if>
+        </where>
+        order by n.create_time desc
+    </select>
+
+    <select id="selectPmsNoticeByNoticeId" parameterType="Long" resultMap="PmsNoticeResult">
+        <include refid="selectPmsNoticeVo"/>
+        where n.notice_id = #{noticeId}
+    </select>
+
+    <insert id="insertPmsNotice" parameterType="PmsNotice" useGeneratedKeys="true" keyProperty="noticeId">
+        insert into pms_notice (community_id, notice_title, notice_type, notice_content,
+            status, publish_time, del_flag, create_by, create_time, remark)
+        values (#{communityId}, #{noticeTitle}, #{noticeType}, #{noticeContent},
+            #{status}, #{publishTime}, '0', #{createBy}, #{createTime}, #{remark})
+    </insert>
+
+    <update id="updatePmsNotice" parameterType="PmsNotice">
+        update pms_notice
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="communityId != null">community_id = #{communityId},</if>
+            <if test="noticeTitle != null">notice_title = #{noticeTitle},</if>
+            <if test="noticeType != null">notice_type = #{noticeType},</if>
+            <if test="noticeContent != null">notice_content = #{noticeContent},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="publishTime != null">publish_time = #{publishTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where notice_id = #{noticeId}
+    </update>
+
+    <delete id="deletePmsNoticeByNoticeId" parameterType="Long">
+        update pms_notice set del_flag = '2' where notice_id = #{noticeId}
+    </delete>
+
+    <delete id="deletePmsNoticeByNoticeIds" parameterType="String">
+        update pms_notice set del_flag = '2' where notice_id in
+        <foreach item="noticeId" collection="array" open="(" separator="," close=")">#{noticeId}</foreach>
+    </delete>
+</mapper>

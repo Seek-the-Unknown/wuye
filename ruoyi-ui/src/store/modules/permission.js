@@ -30,14 +30,15 @@ const permission = {
   },
   actions: {
     // 生成路由
-    GenerateRoutes({ commit }) {
+    GenerateRoutes({ commit, rootState }) {
       return new Promise(resolve => {
+        const roles = rootState.user.roles || []
         // 向后端请求路由数据
         getRouters().then(res => {
           const sdata = JSON.parse(JSON.stringify(res.data))
           const rdata = JSON.parse(JSON.stringify(res.data))
-          const sidebarRoutes = filterAsyncRouter(sdata)
-          const rewriteRoutes = filterAsyncRouter(rdata, false, true)
+          const sidebarRoutes = filterAsyncRouter(sdata, false, false, roles)
+          const rewriteRoutes = filterAsyncRouter(rdata, false, true, roles)
           const asyncRoutes = filterDynamicRoutes(dynamicRoutes)
           rewriteRoutes.push({ path: '*', redirect: '/404', hidden: true })
           router.addRoutes(asyncRoutes)
@@ -53,8 +54,25 @@ const permission = {
 }
 
 // 遍历后台传来的路由字符串，转换为组件对象
-function filterAsyncRouter(asyncRouterMap, lastRouter = false, type = false) {
+function filterAsyncRouter(asyncRouterMap, lastRouter = false, type = false, roles = []) {
   return asyncRouterMap.filter(route => {
+    // Role-based filtering for portal, property, and worker menus
+    if (route.path === 'portal' || (route.path && route.path.includes('portal'))) {
+      if (!roles || !roles.includes('property_owner')) {
+        return false
+      }
+    }
+    if (route.path === 'property' || (route.path && route.path.includes('property'))) {
+      if (!roles || (!roles.includes('property_admin') && !roles.includes('admin'))) {
+        return false
+      }
+    }
+    if (route.path === 'worker' || (route.path && route.path.includes('worker'))) {
+      if (!roles || !roles.includes('property_worker')) {
+        return false
+      }
+    }
+
     if (type && route.children) {
       route.children = filterChildren(route.children)
     }
@@ -71,7 +89,7 @@ function filterAsyncRouter(asyncRouterMap, lastRouter = false, type = false) {
       }
     }
     if (route.children != null && route.children && route.children.length) {
-      route.children = filterAsyncRouter(route.children, route, type)
+      route.children = filterAsyncRouter(route.children, route, type, roles)
     } else {
       delete route['children']
       delete route['redirect']

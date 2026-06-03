@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.property.mapper.PmsVisitorMapper">
+
+    <resultMap type="PmsVisitor" id="PmsVisitorResult">
+        <result property="visitorId"     column="visitor_id"     />
+        <result property="communityId"   column="community_id"   />
+        <result property="visitorName"   column="visitor_name"   />
+        <result property="visitorPhone"  column="visitor_phone"  />
+        <result property="idCard"        column="id_card"        />
+        <result property="visitRoom"     column="visit_room"     />
+        <result property="ownerId"       column="owner_id"       />
+        <result property="visitReason"   column="visit_reason"   />
+        <result property="visitTime"     column="visit_time"     />
+        <result property="leaveTime"     column="leave_time"     />
+        <result property="visitStatus"   column="visit_status"   />
+        <result property="createBy"      column="create_by"      />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"      column="update_by"      />
+        <result property="updateTime"    column="update_time"    />
+        <result property="communityName" column="community_name" />
+        <result property="ownerName"     column="owner_name"     />
+    </resultMap>
+
+    <sql id="selectPmsVisitorVo">
+        select v.visitor_id, v.community_id, v.visitor_name, v.visitor_phone, v.id_card,
+               v.visit_room, v.owner_id, v.visit_reason, v.visit_time, v.leave_time,
+               v.visit_status, v.create_by, v.create_time, v.update_by, v.update_time,
+               c.community_name, o.owner_name
+        from pms_visitor v
+        left join pms_community c on v.community_id = c.community_id
+        left join pms_owner o on v.owner_id = o.owner_id
+    </sql>
+
+    <select id="selectPmsVisitorList" parameterType="PmsVisitor" resultMap="PmsVisitorResult">
+        <include refid="selectPmsVisitorVo"/>
+        <where>
+            <if test="communityId != null">and v.community_id = #{communityId}</if>
+            <if test="ownerId != null">and v.owner_id = #{ownerId}</if>
+            <if test="visitorName != null and visitorName != ''">and v.visitor_name like concat('%', #{visitorName}, '%')</if>
+            <if test="visitorPhone != null and visitorPhone != ''">and v.visitor_phone like concat('%', #{visitorPhone}, '%')</if>
+            <if test="visitStatus != null and visitStatus != ''">and v.visit_status = #{visitStatus}</if>
+        </where>
+        order by v.create_time desc
+    </select>
+
+    <select id="selectPmsVisitorByVisitorId" parameterType="Long" resultMap="PmsVisitorResult">
+        <include refid="selectPmsVisitorVo"/>
+        where v.visitor_id = #{visitorId}
+    </select>
+
+    <insert id="insertPmsVisitor" parameterType="PmsVisitor" useGeneratedKeys="true" keyProperty="visitorId">
+        insert into pms_visitor (community_id, visitor_name, visitor_phone, id_card,
+            visit_room, owner_id, visit_reason, visit_time, visit_status, create_by, create_time)
+        values (#{communityId}, #{visitorName}, #{visitorPhone}, #{idCard},
+            #{visitRoom}, #{ownerId}, #{visitReason}, #{visitTime}, #{visitStatus}, #{createBy}, #{createTime})
+    </insert>
+
+    <update id="updatePmsVisitor" parameterType="PmsVisitor">
+        update pms_visitor
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="communityId != null">community_id = #{communityId},</if>
+            <if test="visitorName != null">visitor_name = #{visitorName},</if>
+            <if test="visitorPhone != null">visitor_phone = #{visitorPhone},</if>
+            <if test="idCard != null">id_card = #{idCard},</if>
+            <if test="visitRoom != null">visit_room = #{visitRoom},</if>
+            owner_id = #{ownerId},
+            <if test="visitReason != null">visit_reason = #{visitReason},</if>
+            <if test="visitTime != null">visit_time = #{visitTime},</if>
+            <if test="leaveTime != null">leave_time = #{leaveTime},</if>
+            <if test="visitStatus != null">visit_status = #{visitStatus},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where visitor_id = #{visitorId}
+    </update>
+
+    <delete id="deletePmsVisitorByVisitorId" parameterType="Long">
+        delete from pms_visitor where visitor_id = #{visitorId}
+    </delete>
+
+    <delete id="deletePmsVisitorByVisitorIds" parameterType="String">
+        delete from pms_visitor where visitor_id in
+        <foreach item="visitorId" collection="array" open="(" separator="," close=")">#{visitorId}</foreach>
+    </delete>
+</mapper>

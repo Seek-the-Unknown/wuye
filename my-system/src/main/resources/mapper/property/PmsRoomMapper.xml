@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.property.mapper.PmsRoomMapper">
+    <resultMap type="PmsRoom" id="PmsRoomResult">
+        <result property="roomId"           column="room_id"          />
+        <result property="buildingId"       column="building_id"      />
+        <result property="roomCode"         column="room_code"        />
+        <result property="roomName"         column="room_name"        />
+        <result property="floorNum"         column="floor_num"        />
+        <result property="constructionArea" column="construction_area"/>
+        <result property="useArea"          column="use_area"         />
+        <result property="status"           column="status"           />
+        <result property="delFlag"          column="del_flag"         />
+        <result property="createBy"         column="create_by"        />
+        <result property="createTime"       column="create_time"      />
+        <result property="updateBy"         column="update_by"        />
+        <result property="updateTime"       column="update_time"      />
+        <result property="remark"           column="remark"           />
+        <result property="ownerId"          column="owner_id"         />
+        <result property="ownerName"        column="owner_name"       />
+    </resultMap>
+
+    <sql id="selectPmsRoomVo">
+        select r.room_id, r.building_id, r.room_code, r.room_name, r.floor_num, r.construction_area, r.use_area, r.status, r.del_flag, r.create_by, r.create_time, r.update_by, r.update_time, r.remark, r.owner_id, o.owner_name
+        from pms_room r
+        left join pms_owner o on r.owner_id = o.owner_id
+    </sql>
+
+    <select id="selectPmsRoomList" parameterType="PmsRoom" resultMap="PmsRoomResult">
+        <include refid="selectPmsRoomVo"/>
+        <where>  
+            r.del_flag = '0'
+            <if test="buildingId != null">and r.building_id = #{buildingId}</if>
+            <if test="roomName != null  and roomName != ''"> and r.room_name like concat('%', #{roomName}, '%')</if>
+            <if test="roomCode != null  and roomCode != ''"> and r.room_code like concat('%', #{roomCode}, '%')</if>
+            <if test="status != null and status != ''">and r.status = #{status}</if>
+            <if test="ownerId != null">and r.owner_id = #{ownerId}</if>
+        </where>
+    </select>
+    
+    <select id="selectPmsRoomByRoomId" parameterType="Long" resultMap="PmsRoomResult">
+        <include refid="selectPmsRoomVo"/>
+        where r.room_id = #{roomId} and r.del_flag = '0'
+    </select>
+        
+    <insert id="insertPmsRoom" parameterType="PmsRoom" useGeneratedKeys="true" keyProperty="roomId">
+        insert into pms_room
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="buildingId != null">building_id,</if>
+            <if test="roomCode != null and roomCode != ''">room_code,</if>
+            <if test="roomName != null and roomName != ''">room_name,</if>
+            <if test="floorNum != null">floor_num,</if>
+            <if test="constructionArea != null">construction_area,</if>
+            <if test="useArea != null">use_area,</if>
+            <if test="status != null">status,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+            <if test="ownerId != null">owner_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="buildingId != null">#{buildingId},</if>
+            <if test="roomCode != null and roomCode != ''">#{roomCode},</if>
+            <if test="roomName != null and roomName != ''">#{roomName},</if>
+            <if test="floorNum != null">#{floorNum},</if>
+            <if test="constructionArea != null">#{constructionArea},</if>
+            <if test="useArea != null">#{useArea},</if>
+            <if test="status != null">#{status},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="ownerId != null">#{ownerId},</if>
+         </trim>
+    </insert>
+
+    <update id="updatePmsRoom" parameterType="PmsRoom">
+        update pms_room
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="buildingId != null">building_id = #{buildingId},</if>
+            <if test="roomCode != null and roomCode != ''">room_code = #{roomCode},</if>
+            <if test="roomName != null and roomName != ''">room_name = #{roomName},</if>
+            <if test="floorNum != null">floor_num = #{floorNum},</if>
+            <if test="constructionArea != null">construction_area = #{constructionArea},</if>
+            <if test="useArea != null">use_area = #{useArea},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            owner_id = #{ownerId},
+        </trim>
+        where room_id = #{roomId}
+    </update>
+
+    <delete id="deletePmsRoomByRoomId" parameterType="Long">
+        update pms_room set del_flag = '2' where room_id = #{roomId}
+    </delete>
+
+    <delete id="deletePmsRoomByRoomIds" parameterType="String">
+        update pms_room set del_flag = '2' where room_id in 
+        <foreach item="roomId" collection="array" open="(" separator="," close=")">
+            #{roomId}
+        </foreach>
+    </delete>
+</mapper>

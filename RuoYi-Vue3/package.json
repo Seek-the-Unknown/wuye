@@ -1,8 +1,8 @@
 {
-  "name": "ruoyi",
+  "name": "pms-frontend",
   "version": "3.9.1",
-  "description": "三江学院管理系统",
-  "author": "三江学院",
+  "description": "基于Vue3的智慧小区物业管理系统 —— 前端课程设计项目",
+  "author": "课程设计小组",
   "license": "MIT",
   "type": "module",
   "scripts": {
@@ -10,10 +10,6 @@
     "build:prod": "vite build",
     "build:stage": "vite build --mode staging",
     "preview": "vite preview"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://gitee.com/y_project/RuoYi-Vue.git"
   },
   "dependencies": {
     "@element-plus/icons-vue": "2.3.2",

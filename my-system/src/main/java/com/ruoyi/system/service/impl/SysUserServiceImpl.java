@@ -270,16 +270,30 @@ public class SysUserServiceImpl implements ISysUserService
         return rows;
     }
 
-    /**
-     * 注册用户信息
-     * 
-     * @param user 用户信息
-     * @return 结果
-     */
     @Override
+    @Transactional
     public boolean registerUser(SysUser user)
     {
-        return userMapper.insertUser(user) > 0;
+        boolean regFlag = userMapper.insertUser(user) > 0;
+        if (regFlag)
+        {
+            // 为注册用户自动分配默认角色（优先分配业主 'property_owner'，其次分配 'common'）
+            SysRole defaultRole = roleMapper.checkRoleKeyUnique("property_owner");
+            if (defaultRole == null)
+            {
+                defaultRole = roleMapper.checkRoleKeyUnique("common");
+            }
+            if (defaultRole != null)
+            {
+                SysUserRole ur = new SysUserRole();
+                ur.setUserId(user.getUserId());
+                ur.setRoleId(defaultRole.getRoleId());
+                List<SysUserRole> list = new ArrayList<SysUserRole>(1);
+                list.add(ur);
+                userRoleMapper.batchUserRole(list);
+            }
+        }
+        return regFlag;
     }
 
     /**

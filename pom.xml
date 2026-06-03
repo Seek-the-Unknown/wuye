@@ -5,15 +5,15 @@
 	<modelVersion>4.0.0</modelVersion>
 	
     <groupId>com.ruoyi</groupId>
-    <artifactId>ruoyi</artifactId>
+    <artifactId>pms</artifactId>
     <version>3.9.1</version>
 
-    <name>ruoyi</name>
-    <url>http://www.ruoyi.vip</url>
-    <description>若依管理系统</description>
+    <name>pms</name>
+    <url>http://localhost:8080</url>
+    <description>智慧物业管理平台</description>
     
     <properties>
-        <ruoyi.version>3.9.1</ruoyi.version>
+        <pms.version>3.9.1</pms.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
@@ -187,35 +187,35 @@
             <dependency>
                 <groupId>com.ruoyi</groupId>
                 <artifactId>my-quartz</artifactId>
-                <version>${ruoyi.version}</version>
+                <version>${pms.version}</version>
             </dependency>
 
             <!-- 代码生成-->
             <dependency>
                 <groupId>com.ruoyi</groupId>
                 <artifactId>my-generator</artifactId>
-                <version>${ruoyi.version}</version>
+                <version>${pms.version}</version>
             </dependency>
 
             <!-- 核心模块-->
             <dependency>
                 <groupId>com.ruoyi</groupId>
                 <artifactId>my-framework</artifactId>
-                <version>${ruoyi.version}</version>
+                <version>${pms.version}</version>
             </dependency>
 
             <!-- 系统模块-->
             <dependency>
                 <groupId>com.ruoyi</groupId>
                 <artifactId>my-system</artifactId>
-                <version>${ruoyi.version}</version>
+                <version>${pms.version}</version>
             </dependency>
 
             <!-- 通用工具-->
             <dependency>
                 <groupId>com.ruoyi</groupId>
                 <artifactId>my-common</artifactId>
-                <version>${ruoyi.version}</version>
+                <version>${pms.version}</version>
             </dependency>
 
         </dependencies>

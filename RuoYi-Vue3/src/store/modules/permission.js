@@ -4,6 +4,7 @@ import { getRouters } from '@/api/menu'
 import Layout from '@/layout/index'
 import ParentView from '@/components/ParentView'
 import InnerLink from '@/layout/components/InnerLink'
+import useUserStore from '@/store/modules/user'
 
 // 匹配views里面所有的.vue文件
 const modules = import.meta.glob('./../../views/**/*.vue')
@@ -34,14 +35,16 @@ const usePermissionStore = defineStore(
       },
       generateRoutes(roles) {
         return new Promise(resolve => {
+          const userStore = useUserStore()
+          const activeRoles = roles && roles.length ? roles : (userStore.roles || [])
           // 向后端请求路由数据
           getRouters().then(res => {
             const sdata = JSON.parse(JSON.stringify(res.data))
             const rdata = JSON.parse(JSON.stringify(res.data))
             const defaultData = JSON.parse(JSON.stringify(res.data))
-            const sidebarRoutes = filterAsyncRouter(sdata)
-            const rewriteRoutes = filterAsyncRouter(rdata, false, true)
-            const defaultRoutes = filterAsyncRouter(defaultData)
+            const sidebarRoutes = filterAsyncRouter(sdata, false, false, activeRoles)
+            const rewriteRoutes = filterAsyncRouter(rdata, false, true, activeRoles)
+            const defaultRoutes = filterAsyncRouter(defaultData, false, false, activeRoles)
             const asyncRoutes = filterDynamicRoutes(dynamicRoutes)
             asyncRoutes.forEach(route => { router.addRoute(route) })
             this.setRoutes(rewriteRoutes)
@@ -56,8 +59,25 @@ const usePermissionStore = defineStore(
   })
 
 // 遍历后台传来的路由字符串，转换为组件对象
-function filterAsyncRouter(asyncRouterMap, lastRouter = false, type = false) {
+function filterAsyncRouter(asyncRouterMap, lastRouter = false, type = false, roles = []) {
   return asyncRouterMap.filter(route => {
+    // Role-based filtering for portal, property, and worker menus
+    if (route.path === 'portal' || (route.path && route.path.includes('portal'))) {
+      if (!roles || !roles.includes('property_owner')) {
+        return false
+      }
+    }
+    if (route.path === 'property' || (route.path && route.path.includes('property'))) {
+      if (!roles || (!roles.includes('property_admin') && !roles.includes('admin'))) {
+        return false
+      }
+    }
+    if (route.path === 'worker' || (route.path && route.path.includes('worker'))) {
+      if (!roles || !roles.includes('property_worker')) {
+        return false
+      }
+    }
+
     if (type && route.children) {
       route.children = filterChildren(route.children)
     }
@@ -74,7 +94,7 @@ function filterAsyncRouter(asyncRouterMap, lastRouter = false, type = false) {
       }
     }
     if (route.children != null && route.children && route.children.length) {
-      route.children = filterAsyncRouter(route.children, route, type)
+      route.children = filterAsyncRouter(route.children, route, type, roles)
     } else {
       delete route['children']
       delete route['redirect']

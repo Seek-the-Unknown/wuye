@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.property.mapper.PmsRepairMapper">
+    <resultMap type="PmsRepair" id="PmsRepairResult">
+        <result property="repairId"      column="repair_id"      />
+        <result property="communityId"   column="community_id"   />
+        <result property="ownerId"       column="owner_id"       />
+        <result property="repairTitle"   column="repair_title"   />
+        <result property="repairContent" column="repair_content" />
+        <result property="repairStatus"  column="repair_status"  />
+        <result property="createBy"      column="create_by"      />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"      column="update_by"      />
+        <result property="updateTime"    column="update_time"    />
+        <result property="workerId"      column="worker_id"      />
+        <result property="assignTime"    column="assign_time"    />
+        <result property="finishTime"    column="finish_time"    />
+        <result property="workerName"    column="worker_name"    />
+        <result property="ownerName"     column="owner_name"     />
+        <result property="communityName" column="community_name" />
+    </resultMap>
+
+    <sql id="selectPmsRepairVo">
+        select repair_id, community_id, owner_id, repair_title, repair_content, repair_status, create_by, create_time, update_by, update_time, worker_id, assign_time, finish_time from pms_repair
+    </sql>
+
+    <select id="selectPmsRepairList" parameterType="PmsRepair" resultMap="PmsRepairResult">
+        select r.repair_id, r.community_id, r.owner_id, r.repair_title, r.repair_content, r.repair_status, 
+               r.create_by, r.create_time, r.update_by, r.update_time, r.worker_id, r.assign_time, r.finish_time,
+               u.nick_name as worker_name, o.owner_name as owner_name, c.community_name as community_name
+        from pms_repair r
+        left join sys_user u on r.worker_id = u.user_id
+        left join pms_owner o on r.owner_id = o.owner_id
+        left join pms_community c on r.community_id = c.community_id
+        <where>  
+            <if test="repairTitle != null  and repairTitle != ''"> and r.repair_title like concat('%', #{repairTitle}, '%')</if>
+            <if test="repairStatus != null  and repairStatus != ''"> and r.repair_status = #{repairStatus}</if>
+            <if test="workerId != null"> and r.worker_id = #{workerId}</if>
+            <if test="ownerId != null"> and r.owner_id = #{ownerId}</if>
+        </where>
+    </select>
+    
+    <select id="selectPmsRepairByRepairId" parameterType="Long" resultMap="PmsRepairResult">
+        select r.repair_id, r.community_id, r.owner_id, r.repair_title, r.repair_content, r.repair_status, 
+               r.create_by, r.create_time, r.update_by, r.update_time, r.worker_id, r.assign_time, r.finish_time,
+               u.nick_name as worker_name, o.owner_name as owner_name, c.community_name as community_name
+        from pms_repair r
+        left join sys_user u on r.worker_id = u.user_id
+        left join pms_owner o on r.owner_id = o.owner_id
+        left join pms_community c on r.community_id = c.community_id
+        where r.repair_id = #{repairId}
+    </select>
+        
+    <insert id="insertPmsRepair" parameterType="PmsRepair" useGeneratedKeys="true" keyProperty="repairId">
+        insert into pms_repair
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="communityId != null">community_id,</if>
+            <if test="ownerId != null">owner_id,</if>
+            <if test="repairTitle != null and repairTitle != ''">repair_title,</if>
+            <if test="repairContent != null and repairContent != ''">repair_content,</if>
+            <if test="repairStatus != null">repair_status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="workerId != null">worker_id,</if>
+            <if test="assignTime != null">assign_time,</if>
+            <if test="finishTime != null">finish_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="communityId != null">#{communityId},</if>
+            <if test="ownerId != null">#{ownerId},</if>
+            <if test="repairTitle != null and repairTitle != ''">#{repairTitle},</if>
+            <if test="repairContent != null and repairContent != ''">#{repairContent},</if>
+            <if test="repairStatus != null">#{repairStatus},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="workerId != null">#{workerId},</if>
+            <if test="assignTime != null">#{assignTime},</if>
+            <if test="finishTime != null">#{finishTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updatePmsRepair" parameterType="PmsRepair">
+        update pms_repair
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="communityId != null">community_id = #{communityId},</if>
+            <if test="ownerId != null">owner_id = #{ownerId},</if>
+            <if test="repairTitle != null and repairTitle != ''">repair_title = #{repairTitle},</if>
+            <if test="repairContent != null and repairContent != ''">repair_content = #{repairContent},</if>
+            <if test="repairStatus != null">repair_status = #{repairStatus},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="workerId != null">worker_id = #{workerId},</if>
+            <if test="assignTime != null">assign_time = #{assignTime},</if>
+            <if test="finishTime != null">finish_time = #{finishTime},</if>
+        </trim>
+        where repair_id = #{repairId}
+    </update>
+
+    <delete id="deletePmsRepairByRepairId" parameterType="Long">
+        delete from pms_repair where repair_id = #{repairId}
+    </delete>
+
+    <delete id="deletePmsRepairByRepairIds" parameterType="String">
+        delete from pms_repair where repair_id in 
+        <foreach item="repairId" collection="array" open="(" separator="," close=")">
+            #{repairId}
+        </foreach>
+    </delete>
+</mapper>

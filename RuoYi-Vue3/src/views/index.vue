@@ -1,1168 +1,1902 @@
 <template>
-  <div class="app-container home">
-    <el-row :gutter="20">
-      <el-col :sm="24" :lg="12" style="padding-left: 20px">
-        <h2>三江学院后台管理框架</h2>
-        <p>
-          一直想做一款后台管理系统，看了很多优秀的开源项目但是发现没有合适自己的。于是利用空闲休息时间开始自己写一套后台系统。如此有了三江学院管理系统，她可以用于所有的Web应用程序，如网站管理后台，网站会员中心，CMS，CRM，OA等等，当然，您也可以对她进行深度定制，以做出更强系统。所有前端后台代码封装过后十分精简易上手，出错概率低。同时支持移动客户端访问。系统会陆续更新一些实用功能。
-        </p>
-        <p>
-          <b>当前版本:</b> <span>v{{ version }}</span>
-        </p>
-        <p>
-          <el-tag type="danger">&yen;免费开源</el-tag>
-        </p>
-        <p>
-          <el-button
-            type="primary"
-            icon="Cloudy"
-            plain
-            @click="goTarget('https://gitee.com/y_project/RuoYi-Vue')"
-            >访问码云</el-button
-          >
-          <el-button
-            icon="HomeFilled"
-            plain
-            @click="goTarget('http://ruoyi.vip')"
-            >访问主页</el-button
-          >
-        </p>
-      </el-col>
+  <div class="dashboard-container">
+    <!-- 未分配角色/房产的新注册用户温馨提示栏 -->
+    <div v-if="isGuest" class="guest-alert-bar animate__animated animate__fadeInDown">
+      <div class="alert-content">
+        <span class="alert-sparkle">✨</span>
+        <span class="alert-text">
+          <strong>欢迎来到智慧物业管理平台！</strong> 检测到您的账号尚未绑定房产，当前正为您展示 <strong>【业主端】 模拟演示数据</strong>。您可联系系统管理员（admin）为您配置角色和房屋绑定。
+        </span>
+      </div>
+      <el-button type="primary" size="small" class="alert-btn" @click="$router.push('/system/user')">
+        去管理用户
+      </el-button>
+    </div>
 
-      <el-col :sm="24" :lg="12" style="padding-left: 50px">
-        <el-row>
-          <el-col :span="12">
-            <h2>技术选型</h2>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="6">
-            <h4>后端技术</h4>
-            <ul>
-              <li>SpringBoot</li>
-              <li>Spring Security</li>
-              <li>JWT</li>
-              <li>MyBatis</li>
-              <li>Druid</li>
-              <li>Fastjson</li>
-              <li>...</li>
-            </ul>
-          </el-col>
-          <el-col :span="6">
-            <h4>前端技术</h4>
-            <ul>
-              <li>Vue</li>
-              <li>Vuex</li>
-              <li>Element-ui</li>
-              <li>Axios</li>
-              <li>Sass</li>
-              <li>Quill</li>
-              <li>...</li>
-            </ul>
-          </el-col>
-        </el-row>
-      </el-col>
-    </el-row>
-    <el-divider />
-    <el-row :gutter="20">
-      <el-col :xs="24" :sm="24" :md="12" :lg="8">
-        <el-card class="update-log">
-          <template v-slot:header>
-            <div class="clearfix">
-              <span>联系信息</span>
-            </div>
-          </template>
-          <div class="body">
-            <p>
-              <i class="el-icon-s-promotion"></i> 官网：<el-link
-                href="http://www.ruoyi.vip"
-                target="_blank"
-                >http://www.ruoyi.vip</el-link
-              >
-            </p>
-            <p>
-              <i class="el-icon-user-solid"></i> QQ群：<s> 满937441 </s> <s> 满887144332 </s>
-              <s> 满180251782 </s> <s> 满104180207 </s> <s> 满186866453 </s> <s> 满201396349 </s>
-              <s> 满101456076 </s> <s> 满101539465 </s> <s> 满264312783 </s> <s> 满167385320 </s> 
-              <s> 满104748341 </s> <s> 满160110482 </s> <s> 满170801498 </s> <s> 满108482800 </s> 
-              <s> 满101046199 </s> <s> 满136919097 </s> <s> 满143961921 </s> <s> 满174951577 </s> 
-              <s> 满161281055 </s> <s> 满138988063 </s> <s> 满151450850 </s> <s> 满224622315 </s>
-              <s> 满287842588 </s> <s> 满187944233 </s> <s> 满228578329 </s> <s> 满191164766 </s>
-              <s> 满174569686 </s> <a href="http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=M9y5NjAl44lAL_Vh2crmEehZU_PMU6KS&authKey=ZSDz8hEREWSaPuxQV3gEwqGIaGjfRNnkB4rJjf0IvXhrSUGSGwQFmBA%2Boe8HFxyl&noverify=0&group_code=127358632" target="_blank">127358632</a>
-            </p>
-            <p>
-              <i class="el-icon-chat-dot-round"></i> 微信：<a
-                href="javascript:;"
-                >/ *三江学院</a
-              >
-            </p>
-            <p>
-              <i class="el-icon-money"></i> 支付宝：<a
-                href="javascript:;"
-                class="支付宝信息"
-                >/ *三江学院</a
-              >
-            </p>
+    <!-- ==================== 1. 超级管理员 / 物业管理员 首页 ==================== -->
+    <template v-if="isAdmin">
+      <!-- 欢迎横幅 -->
+      <div class="welcome-banner">
+        <div class="welcome-left">
+          <h2 class="welcome-title">
+            <span class="greeting-icon">👋</span>
+            {{ greetingText }}，{{ nickName }}
+          </h2>
+          <p class="welcome-date">{{ currentDate }} {{ currentWeekday }} · 智慧物业管理平台</p>
+        </div>
+        <div class="welcome-actions">
+          <el-button class="action-btn" @click="$router.push('/property/repair')">
+            <el-icon><Tools /></el-icon>
+            <span>报修管理</span>
+          </el-button>
+          <el-button class="action-btn" @click="$router.push('/property/visitor')">
+            <el-icon><Avatar /></el-icon>
+            <span>访客管理</span>
+          </el-button>
+          <el-button class="action-btn" @click="$router.push('/property/notice')">
+            <el-icon><Bell /></el-icon>
+            <span>发布公告</span>
+          </el-button>
+        </div>
+      </div>
+
+      <!-- KPI 统计卡片 -->
+      <div class="kpi-row">
+        <div class="kpi-card kpi-purple" @click="$router.push('/property/community')">
+          <div class="kpi-icon-wrap">
+            <el-icon><OfficeBuilding /></el-icon>
           </div>
-        </el-card>
-      </el-col>
-      <el-col :xs="24" :sm="24" :md="12" :lg="8">
-        <el-card class="update-log">
-          <template v-slot:header>
-            <div class="clearfix">
-              <span>更新日志</span>
+          <div class="kpi-info">
+            <span class="kpi-value">{{ animatedStats.communityCount }}</span>
+            <span class="kpi-label">小区总数</span>
+          </div>
+          <div class="kpi-decoration"></div>
+        </div>
+        <div class="kpi-card kpi-teal" @click="$router.push('/property/owner')">
+          <div class="kpi-icon-wrap">
+            <el-icon><User /></el-icon>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-value">{{ animatedStats.ownerCount }}</span>
+            <span class="kpi-label">业主总数</span>
+          </div>
+          <div class="kpi-decoration"></div>
+        </div>
+        <div class="kpi-card kpi-amber" @click="$router.push('/property/room')">
+          <div class="kpi-icon-wrap">
+            <el-icon><House /></el-icon>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-value">{{ animatedStats.roomCount }}</span>
+            <span class="kpi-label">房屋总数</span>
+          </div>
+          <div class="kpi-decoration"></div>
+        </div>
+        <div class="kpi-card kpi-rose" @click="$router.push('/property/repair')">
+          <div class="kpi-icon-wrap">
+            <el-icon><WarnTriangleFilled /></el-icon>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-value">{{ animatedStats.pendingRepairCount }}</span>
+            <span class="kpi-label">待处理工单</span>
+          </div>
+          <div class="kpi-decoration"></div>
+        </div>
+      </div>
+
+      <!-- 图表区域 -->
+      <div class="chart-row">
+        <div class="chart-card chart-main">
+          <div class="card-header">
+            <h3 class="card-title">
+              <span class="title-dot dot-blue"></span>
+              月度报修趋势
+            </h3>
+          </div>
+          <div ref="repairChartRef" class="chart-body"></div>
+        </div>
+
+        <div class="chart-card chart-side">
+          <div class="card-header">
+            <h3 class="card-title">
+              <span class="title-dot dot-green"></span>
+              物业费收缴率
+            </h3>
+          </div>
+          <div ref="feeChartRef" class="chart-body"></div>
+        </div>
+      </div>
+
+      <!-- 列表区域 -->
+      <div class="list-row">
+        <div class="list-card list-main">
+          <div class="card-header">
+            <h3 class="card-title">
+              <span class="title-dot dot-orange"></span>
+              最近报修工单
+            </h3>
+            <el-button link type="primary" class="view-all-btn" @click="$router.push('/property/repair')">
+              查看全部 →
+            </el-button>
+          </div>
+          <div class="table-wrap">
+            <el-table :data="recentRepairs" style="width: 100%" :header-cell-style="{ background: '#f8f9fe', color: '#606266', fontWeight: 600 }" size="default">
+              <el-table-column label="报修标题" prop="repairTitle" show-overflow-tooltip min-width="180" />
+              <el-table-column label="报修人" prop="ownerName" width="100" />
+              <el-table-column label="状态" width="100" align="center">
+                <template #default="{ row }">
+                  <el-tag :type="repairStatusType(row.repairStatus)" size="small" effect="dark" round>
+                    {{ repairStatusText(row.repairStatus) }}
+                  </el-tag>
+                </template>
+              </el-table-column>
+              <el-table-column label="报修时间" width="170" align="center">
+                <template #default="{ row }">
+                  {{ formatTime(row.createTime) }}
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <div class="list-card list-side">
+          <div class="card-header">
+            <h3 class="card-title">
+              <span class="title-dot dot-purple"></span>
+              待办事项
+            </h3>
+          </div>
+          <div class="todo-list">
+            <div class="todo-item" @click="$router.push('/property/repair')">
+              <div class="todo-icon todo-icon-red">
+                <el-icon><Tools /></el-icon>
+              </div>
+              <div class="todo-info">
+                <span class="todo-label">待处理报修</span>
+                <span class="todo-desc">需要及时安排维修</span>
+              </div>
+              <span class="todo-count todo-count-red">{{ todoSummary.pendingRepairs || 0 }}</span>
             </div>
-          </template>
-          <el-collapse accordion>
-            <el-collapse-item title="v3.9.1 - 2025-12-18">
-              <ol>
-                <li>支持防盗链功能</li>
-                <li>菜单导航设置支持纯顶部</li>
-                <li>使用yauaa代替bitwalker</li>
-                <li>用户头像更换后移除旧头像文件</li>
-                <li>支持Excel导出对象的多个子列表</li>
-                <li>升级oshi到最新版本6.9.1</li>
-                <li>升级druid到最新版本1.2.27</li>
-                <li>升级fastjson到最新版2.0.60</li>
-                <li>升级spring-security到5.7.14</li>
-                <li>升级tomcat到最新版本9.0.112</li>
-                <li>升级commons.io到最新版本2.21.0</li>
-                <li>用户导入添加验证提示</li>
-                <li>显示列信息支持对象格式</li>
-                <li>忽略用户密码字段的JSON序列化</li>
-                <li>网页标题设置新增SET_TITLE方法</li>
-                <li>自动识别json对象白名单配置范围缩小</li>
-                <li>登录/注册页面底部版权信息修改为读取配置</li>
-                <li>修复用户归属部门无法修改为空问题</li>
-                <li>修复固定头部时出现的导航栏偏移问题</li>
-                <li>修复v3时间控件between选择后清空报错问题</li>
-                <li>修复comboReadDict属性下多个sheet出现的报错</li>
-                <li>修复表单构建移除所有控件后切换路由回来空白问题</li>
-                <li>优化布局设置显示</li>
-                <li>优化字典组件值宽松匹配</li>
-                <li>优化获取字典类型值的方法</li>
-                <li>优化生成代码下载的zip文件名</li>
-                <li>优化日志记录参数拼装提升效率</li>
-                <li>优化导入文件检查标题行不能为空</li>
-                <li>优化表单构建关闭页签销毁复制插件</li>
-                <li>优化Excel统计行数值的单元格样式显示</li>
-                <li>优化数据权限控制逻辑，放开permission限制</li>
-                <li>其他细节优化</li>
-              </ol>
-            </el-collapse-item>
-            <el-collapse-item title="v3.9.0 - 2025-05-28">
-              <ol>
-                <li>优化菜单搜索查询页</li>
-                <li>导航栏显示昵称&设置</li>
-                <li>菜单管理新增路由名称</li>
-                <li>添加底部版权信息&开关</li>
-                <li>分配角色禁用不允许勾选</li>
-                <li>Excel导入导出支持多图片</li>
-                <li>添加页签图标显示开关功能</li>
-                <li>上传组件新增拖动排序属性</li>
-                <li>显隐列组件支持全选/全不选</li>
-                <li>初始密码支持自定义修改策略</li>
-                <li>账号密码支持自定义更新周期</li>
-                <li>代码生成列表支持按时间排序</li>
-                <li>支持富文本复制粘贴图片上传至url</li>
-                <li>支持文件&图片组件自定义地址&参数</li>
-                <li>升级tomcat到最新版本9.0.105</li>
-                <li>升级oshi到最新版本6.8.1</li>
-                <li>升级fastjson到最新版2.0.57</li>
-                <li>升级commons.io到最新版本2.19.0</li>
-                <li>package.json移除runjs依赖</li>
-                <li>package.json移除eslint依赖</li>
-                <li>package.json移除vue-meta依赖</li>
-                <li>修复代码生成主子表校验必填失效问题</li>
-                <li>优化前端树结构性能问题</li>
-                <li>优化前端处理路由函数代码</li>
-                <li>优化文件上传组件新增类型</li>
-                <li>优化顶部菜单搜索栏为多层级显示</li>
-                <li>优化文件&图片上传组件新增disabled属性</li>
-                <li>优化空指针异常时无法获取错误信息问题</li>
-                <li>优化定时任务字符包含多个括号导致数据错误</li>
-                <li>优化登录&注册页表头使用VUE_APP_TITLE配置值</li>
-                <li>优化导出Excel日期格式双击离开后与设定的格式不一致问题</li>
-                <li>其他细节优化</li>
-              </ol>
-            </el-collapse-item>
-            <el-collapse-item title="v3.8.9 - 2024-12-30">
-              <ol>
-                <li>用户管理支持分栏拖动</li>
-                <li>修改主题样式本地读取</li>
-                <li>用户头像http(s)链接支持</li>
-                <li>用户管理过滤掉已禁用部门</li>
-                <li>支持自定义显示Excel属性列</li>
-                <li>操作日志记录DELETE请求参数</li>
-                <li>白名单支持对通配符路径匹配</li>
-                <li>校检文件名是否包含特殊字符</li>
-                <li>代码生成创建表屏蔽违规的字符</li>
-                <li>菜单面包屑导航支持多层级显示</li>
-                <li>Excel注解支持wrapText是否允许内容换行</li>
-                <li>代码生成新增配置是否允许文件覆盖到本地</li>
-                <li>修复角色禁用权限不失效问题</li>
-                <li>修复代码生成上级菜单显示问题</li>
-                <li>修复导出子列表对象只能在最后的问题</li>
-                <li>修复TopNav无法正确获取active的问题</li>
-                <li>修复默认关闭Tags-Views内链页面打不开</li>
-                <li>升级oshi到最新版本6.6.5</li>
-                <li>升级tomcat到最新版本9.0.96</li>
-                <li>升级fastjson到最新版2.0.53</li>
-                <li>升级logback到最新版本1.2.13</li>
-                <li>升级spring-framework到最新版本5.3.39</li>
-                <li>升级quill到最新版本2.0.2</li>
-                <li>升级axios到最新版本0.28.1</li>
-                <li>优化身份证脱敏正则</li>
-                <li>优化权限更新后同步缓存</li>
-                <li>优化查询时间范围日期格式</li>
-                <li>优化参数键值更换为多行文本</li>
-                <li>优化导入带标题文件关闭清理</li>
-                <li>优化上传图片带域名不增加前缀</li>
-                <li>优化特殊字符密码修改失败问题</li>
-                <li>优化无用户编号不校验数据权限</li>
-                <li>优化TopNav内链菜单点击没有高亮</li>
-                <li>优化菜单管理切换Mini布局错乱问题</li>
-                <li>其他细节优化</li>
-              </ol>
-            </el-collapse-item>
-            <el-collapse-item title="v3.8.8 - 2024-06-30">
-              <ol>
-                <li>菜单管理新增路由名称</li>
-                <li>新增数据脱敏过滤注解</li>
-                <li>用户密码新增非法字符验证</li>
-                <li>限制用户操作数据权限范围</li>
-                <li>代码生成新增创建表结构功能</li>
-                <li>定时任务白名单配置范围缩小</li>
-                <li>优化代码生成主子表关联查询方式</li>
-                <li>Excel注解新增属性comboReadDict</li>
-                <li>Excel注解ColumnType类型新增文本</li>
-                <li>新增国际化资源文件配置</li>
-                <li>升级oshi到最新版本6.6.1</li>
-                <li>升级druid到最新版本1.2.23</li>
-                <li>升级core-js到最新版本3.37.1</li>
-                <li>更新HttpUtils中的User-Agent</li>
-                <li>更新compressionPlugin到6.1.2以兼容node18+</li>
-                <li>升级spring-security到安全版本，防止漏洞风险</li>
-                <li>升级spring-framework到安全版本，防止漏洞风险</li>
-                <li>优化自定义XSS注解匹配方式</li>
-                <li>优化缓存监控键名列表排序显示</li>
-                <li>优化定时任务日志默认按时间排序</li>
-                <li>优化默认文件大小超过2G无效的问题</li>
-                <li>优化查表特殊字符使用反斜杠进行转义</li>
-                <li>优化定时任务cron表达式小时配置显示错误问题</li>
-                <li>优化多个自定数据权限使用in查询,避免多次拼接</li>
-                <li>优化导入Excel时设置dictType属性重复查缓存问题</li>
-                <li>其他细节优化</li>
-              </ol>
-            </el-collapse-item>
-            <el-collapse-item title="v3.8.7 - 2023-12-08">
-              <ol>
-                <li>操作日志记录部门名称</li>
-                <li>全局数据存储用户编号</li>
-                <li>新增编程式判断资源访问权限</li>
-                <li>操作日志列表新增IP地址查询</li>
-                <li>定时任务新增页去除状态选项</li>
-                <li>代码生成支持选择前端模板类型</li>
-                <li>显隐列组件支持复选框弹出类型</li>
-                <li>通用排序属性orderBy参数限制长度</li>
-                <li>Excel自定义数据处理器增加单元格/工作簿对象</li>
-                <li>升级oshi到最新版本6.4.8</li>
-                <li>升级druid到最新版本1.2.20</li>
-                <li>升级fastjson到最新版2.0.43</li>
-                <li>升级pagehelper到最新版1.4.7</li>
-                <li>升级commons.io到最新版本2.13.0</li>
-                <li>升级element-ui到最新版本2.15.14</li>
-                <li>修复五级路由缓存无效问题</li>
-                <li>修复外链带端口出现的异常</li>
-                <li>修复树模板父级编码变量错误</li>
-                <li>修复字典表详情页面搜索问题</li>
-                <li>修复内链iframe没有传递参数问题</li>
-                <li>修复自定义字典样式不生效的问题</li>
-                <li>修复字典缓存删除方法参数错误问题</li>
-                <li>修复Excel导入数据临时文件无法删除问题</li>
-                <li>修复未登录带参数访问成功后参数丢失问题</li>
-                <li>修复HeaderSearch组件跳转query参数丢失问题</li>
-                <li>修复代码生成导入后必填项与数据库不匹配问题</li>
-                <li>修复Excels导入时无法获取到dictType字典值问题</li>
-                <li>优化下载zip方法新增遮罩层</li>
-                <li>优化头像上传参数新增文件名称</li>
-                <li>优化字典标签支持自定义分隔符</li>
-                <li>优化菜单管理类型为按钮状态可选</li>
-                <li>优化前端防重复提交数据大小限制</li>
-                <li>优化TopNav菜单没有图标svg不显示</li>
-                <li>优化数字金额大写转换精度丢失问题</li>
-                <li>优化富文本Editor组件检验图片格式</li>
-                <li>优化页签在Firefox浏览器被遮挡的问题</li>
-                <li>优化个人中心/基本资料修改时数据显示问题</li>
-                <li>优化缓存监控图表支持跟随屏幕大小自适应调整</li>
-                <li>其他细节优化</li>
-              </ol>
-            </el-collapse-item>
-            <el-collapse-item title="v3.8.6 - 2023-06-30">
-              <ol>
-                <li>支持登录IP黑名单限制</li>
-                <li>新增监控页面图标显示</li>
-                <li>操作日志新增消耗时间属性</li>
-                <li>屏蔽定时任务bean违规的字符</li>
-                <li>日志管理使用索引提升查询性能</li>
-                <li>日志注解支持排除指定的请求参数</li>
-                <li>支持自定义隐藏属性列过滤子对象</li>
-                <li>升级oshi到最新版本6.4.3</li>
-                <li>升级druid到最新版本1.2.16</li>
-                <li>升级fastjson到最新版2.0.34</li>
-                <li>升级spring-boot到最新版本2.5.15</li>
-                <li>升级element-ui到最新版本2.15.13</li>
-                <li>移除apache/commons-fileupload依赖</li>
-                <li>修复页面切换时布局错乱的问题</li>
-                <li>修复匿名注解Anonymous空指针问题</li>
-                <li>修复路由跳转被阻止时内部产生报错信息问题</li>
-                <li>修复isMatchedIp的参数判断产生空指针的问题</li>
-                <li>修复用户多角色数据权限可能出现权限抬升的情况</li>
-                <li>修复开启TopNav后一级菜单路由参数设置无效问题</li>
-                <li>修复DictTag组件value没有匹配的值时则展示value</li>
-                <li>优化文件下载出现的异常</li>
-                <li>优化选择图标组件高亮回显</li>
-                <li>优化弹窗后导航栏偏移的问题</li>
-                <li>优化修改密码日志存储明文问题</li>
-                <li>优化页签栏关闭其他出现的异常问题</li>
-                <li>优化页签关闭左侧选项排除首页选项</li>
-                <li>优化关闭当前tab页跳转最右侧tab页</li>
-                <li>优化缓存列表清除操作提示不变的问题</li>
-                <li>优化字符未使用下划线不进行驼峰式处理</li>
-                <li>优化用户导入更新时需获取用户编号问题</li>
-                <li>优化侧边栏的平台标题与VUE_APP_TITLE保持同步</li>
-                <li>优化导出Excel时设置dictType属性重复查缓存问题</li>
-                <li>连接池Druid支持新的配置connectTimeout和socketTimeout</li>
-                <li>其他细节优化</li>
-              </ol>
-            </el-collapse-item>
-            <el-collapse-item title="v3.8.5 - 2023-01-01">
-              <ol>
-                <li>定时任务违规的字符</li>
-                <li>重置时取消部门选中</li>
-                <li>新增返回警告消息提示</li>
-                <li>忽略不必要的属性数据返回</li>
-                <li>修改参数键名时移除前缓存配置</li>
-                <li>导入更新用户数据前校验数据权限</li>
-                <li>兼容Excel下拉框内容过多无法显示的问题</li>
-                <li>升级echarts到最新版本5.4.0</li>
-                <li>升级core-js到最新版本3.25.3</li>
-                <li>升级oshi到最新版本6.4.0</li>
-                <li>升级kaptcha到最新版2.3.3</li>
-                <li>升级druid到最新版本1.2.15</li>
-                <li>升级fastjson到最新版2.0.20</li>
-                <li>升级pagehelper到最新版1.4.6</li>
-                <li>优化弹窗内容过多展示不全问题</li>
-                <li>优化swagger-ui静态资源使用缓存</li>
-                <li>开启TopNav没有子菜单隐藏侧边栏</li>
-                <li>删除fuse无效选项maxPatternLength</li>
-                <li>优化导出对象的子列表为空会出现[]问题</li>
-                <li>优化编辑头像时透明部分会变成黑色问题</li>
-                <li>优化小屏幕上修改头像界面布局错位的问题</li>
-                <li>修复代码生成勾选属性无效问题</li>
-                <li>修复文件上传组件格式验证问题</li>
-                <li>修复回显数据字典数组异常问题</li>
-                <li>修复sheet超出最大行数异常问题</li>
-                <li>修复Log注解GET请求记录不到参数问题</li>
-                <li>修复调度日志点击多次数据不变化的问题</li>
-                <li>修复主题颜色在Drawer组件不会加载问题</li>
-                <li>修复文件名包含特殊字符的文件无法下载问题</li>
-                <li>修复table中更多按钮切换主题色未生效修复问题</li>
-                <li>修复某些特性的环境生成代码变乱码TXT文件问题</li>
-                <li>修复代码生成图片/文件/单选时选择必填无法校验问题</li>
-                <li>修复某些特性的情况用户编辑对话框中角色和部门无法修改问题</li>
-                <li>其他细节优化</li>
-              </ol>
-            </el-collapse-item>
-            <el-collapse-item title="v3.8.4 - 2022-09-26">
-              <ol>
-                <li>数据逻辑删除不进行唯一验证</li>
-                <li>Excel注解支持导出对象的子列表方法</li>
-                <li>Excel注解支持自定义隐藏属性列</li>
-                <li>Excel注解支持backgroundColor属性设置背景色</li>
-                <li>支持配置密码最大错误次数/锁定时间</li>
-                <li>登录日志新增解锁账户功能</li>
-                <li>通用下载方法新增config配置选项</li>
-                <li>支持多权限字符匹配角色数据权限</li>
-                <li>页面内嵌iframe切换tab不刷新数据</li>
-                <li>操作日志记录支持排除敏感属性字段</li>
-                <li>修复多文件上传报错出现的异常问题</li>
-                <li>修复图片预览组件src属性为null值控制台报错问题</li>
-                <li>升级oshi到最新版本6.2.2</li>
-                <li>升级fastjson到最新版2.0.14</li>
-                <li>升级pagehelper到最新版1.4.3</li>
-                <li>升级core-js到最新版本3.25.2</li>
-                <li>升级element-ui到最新版本2.15.10</li>
-                <li>优化任务过期不执行调度</li>
-                <li>优化字典数据使用store存取</li>
-                <li>优化修改资料头像被覆盖的问题</li>
-                <li>优化修改用户登录账号重复验证</li>
-                <li>优化代码生成同步后值NULL问题</li>
-                <li>优化定时任务支持执行父类方法</li>
-                <li>优化用户个人信息接口防止修改部门</li>
-                <li>优化布局设置使用el-drawer抽屉显示</li>
-                <li>优化没有权限的用户编辑部门缺少数据</li>
-                <li>优化日志注解记录限制请求地址的长度</li>
-                <li>优化excel/scale属性导出单元格数值类型</li>
-                <li>优化日志操作中重置按钮时重复查询的问题</li>
-                <li>优化多个相同角色数据导致权限SQL重复问题</li>
-                <li>优化表格上右侧工具条（搜索按钮显隐&右侧样式凸出）</li>
-                <li>其他细节优化</li>
-              </ol>
-            </el-collapse-item>
-            <el-collapse-item title="v3.8.3 - 2022-06-27">
-              <ol>
-                <li>新增缓存列表菜单功能</li>
-                <li>代码生成树表新增(展开/折叠)</li>
-                <li>Excel注解支持color字体颜色</li>
-                <li>新增Anonymous匿名访问不鉴权注解</li>
-                <li>用户头像上传限制只能为图片格式</li>
-                <li>接口使用泛型使其看到响应属性字段</li>
-                <li>检查定时任务bean所在包名是否为白名单配置</li>
-                <li>添加页签openPage支持传递参数</li>
-                <li>用户缓存信息添加部门ancestors祖级列表</li>
-                <li>升级element-ui到最新版本2.15.8</li>
-                <li>升级oshi到最新版本6.1.6</li>
-                <li>升级druid到最新版本1.2.11</li>
-                <li>升级fastjson到最新版2.0.8</li>
-                <li>升级spring-boot到最新版本2.5.14</li>
-                <li>降级jsencrypt版本兼容IE浏览器</li>
-                <li>删除多余的salt字段</li>
-                <li>新增获取不带后缀文件名称方法</li>
-                <li>新增获取配置文件中的属性值方法</li>
-                <li>新增内容编码/解码方便插件集成使用</li>
-                <li>字典类型必须以字母开头，且只能为（小写字母，数字，下滑线）</li>
-                <li>优化设置分页参数默认值</li>
-                <li>优化对空字符串参数处理的过滤</li>
-                <li>优化显示顺序orderNum类型为整型</li>
-                <li>优化表单构建按钮不显示正则校验</li>
-                <li>优化字典数据回显样式下拉框显示值</li>
-                <li>优化R响应成功状态码与全局保持一致</li>
-                <li>优化druid开启wall过滤器出现的异常问题</li>
-                <li>优化用户管理左侧树型组件增加选中高亮保持</li>
-                <li>优化新增用户与角色信息&用户与岗位信息逻辑</li>
-                <li>优化默认不启用压缩文件缓存防止node_modules过大</li>
-                <li>修复字典数据显示不全问题</li>
-                <li>修复操作日志查询类型条件为0时会查到所有数据</li>
-                <li>修复Excel注解prompt/combo同时使用不生效问题</li>
-                <li>其他细节优化</li>
-              </ol>
-            </el-collapse-item>
-            <el-collapse-item title="v3.8.2 - 2022-04-01">
-              <ol>
-                <li>前端支持设置是否需要防止数据重复提交</li>
-                <li>开启TopNav没有子菜单情况隐藏侧边栏</li>
-                <li>侧边栏菜单名称过长悬停显示标题</li>
-                <li>用户访问控制时校验数据权限，防止越权</li>
-                <li>导出Excel时屏蔽公式，防止CSV注入风险</li>
-                <li>组件ImagePreview支持多图预览显示</li>
-                <li>组件ImageUpload支持多图同时选择上传</li>
-                <li>组件FileUpload支持多文件同时选择上传</li>
-                <li>服务监控新增运行参数信息显示</li>
-                <li>定时任务目标字符串过滤特殊字符</li>
-                <li>定时任务目标字符串验证包名白名单</li>
-                <li>代码生成列表图片支持预览</li>
-                <li>代码生成编辑修改打开新页签</li>
-                <li>代码生成新增Java类型Boolean</li>
-                <li>代码生成子表支持日期/字典配置</li>
-                <li>代码生成同步保留必填/类型选项</li>
-                <li>升级oshi到最新版本6.1.2</li>
-                <li>升级fastjson到最新版1.2.80</li>
-                <li>升级pagehelper到最新版1.4.1</li>
-                <li>升级spring-boot到最新版本2.5.11</li>
-                <li>升级spring-boot-mybatis到最新版2.2.2</li>
-                <li>添加遗漏的分页参数合理化属性</li>
-                <li>修改npm即将过期的注册源地址</li>
-                <li>修复分页组件请求两次问题</li>
-                <li>修复通用文件下载接口跨域问题</li>
-                <li>修复Xss注解字段值为空时的异常问题</li>
-                <li>修复选项卡点击右键刷新丢失参数问题</li>
-                <li>修复表单清除元素位置未垂直居中问题</li>
-                <li>修复服务监控中运行参数显示条件错误</li>
-                <li>修复导入Excel时字典字段类型为Long转义为空问题</li>
-                <li>修复登录超时刷新页面跳转登录页面还提示重新登录问题</li>
-                <li>优化加载字典缓存数据</li>
-                <li>优化IP地址获取到多个的问题</li>
-                <li>优化任务队列满时任务拒绝策略</li>
-                <li>优化文件上传兼容Weblogic环境</li>
-                <li>优化定时任务默认保存到内存中执行</li>
-                <li>优化部门修改缩放后出现的错位问题</li>
-                <li>优化Excel格式化不同类型的日期对象</li>
-                <li>优化菜单表关键字导致的插件报错问题</li>
-                <li>优化Oracle用户头像列为空时不显示问题</li>
-                <li>优化页面若未匹配到字典标签则返回原字典值</li>
-                <li>优化修复登录失效后多次请求提示多次弹窗问题</li>
-                <li>其他细节优化</li>
-              </ol>
-            </el-collapse-item>
-            <el-collapse-item title="v3.8.1 - 2022-01-01">
-              <ol>
-                <li>新增Vue3前端代码生成模板</li>
-                <li>新增图片预览组件</li>
-                <li>新增压缩插件实现打包Gzip</li>
-                <li>自定义xss校验注解实现</li>
-                <li>自定义文字复制剪贴指令</li>
-                <li>代码生成预览支持复制内容</li>
-                <li>路由支持单独配置菜单或角色权限</li>
-                <li>用户管理部门查询选择节点后分页参数初始</li>
-                <li>修复用户分配角色属性错误</li>
-                <li>修复打包后字体图标偶现的乱码问题</li>
-                <li>修复菜单管理重置表单出现的错误</li>
-                <li>修复版本差异导致的懒加载报错问题</li>
-                <li>修复Cron组件中周回显问题</li>
-                <li>修复定时任务多参数逗号分隔的问题</li>
-                <li>修复根据ID查询列表可能出现的主键溢出问题</li>
-                <li>修复tomcat配置参数已过期问题</li>
-                <li>升级clipboard到最新版本2.0.8</li>
-                <li>升级oshi到最新版本v5.8.6</li>
-                <li>升级fastjson到最新版1.2.79</li>
-                <li>升级spring-boot到最新版本2.5.8</li>
-                <li>升级log4j2到2.17.1，防止漏洞风险</li>
-                <li>优化下载解析blob异常提示</li>
-                <li>优化代码生成字典组重复问题</li>
-                <li>优化查询用户的角色组&岗位组代码</li>
-                <li>优化定时任务cron表达式小时设置24</li>
-                <li>优化用户导入提示溢出则显示滚动条</li>
-                <li>优化防重复提交标识组合为(key+url+header)</li>
-                <li>优化分页方法设置成通用方便灵活调用</li>
-                <li>其他细节优化</li>
-              </ol>
-            </el-collapse-item>
-            <el-collapse-item title="v3.8.0 - 2021-12-01">
-              <ol>
-                <li>新增配套并同步的Vue3前端版本</li>
-                <li>新增通用方法简化模态/缓存/下载/权限/页签使用</li>
-                <li>优化导出数据/使用通用下载方法</li>
-                <li>Excel注解支持自定义数据处理器</li>
-                <li>Excel注解支持导入导出标题信息</li>
-                <li>Excel导入支持@Excels注解</li>
-                <li>新增组件data-dict，简化数据字典使用</li>
-                <li>新增Jaxb依赖，防止jdk8以上出现的兼容错误</li>
-                <li>生产环境使用路由懒加载提升页面响应速度</li>
-                <li>修复五级以上菜单出现的404问题</li>
-                <li>防重提交注解支持配置间隔时间/提示消息</li>
-                <li>日志注解新增是否保存响应参数</li>
-                <li>任务屏蔽违规字符&参数忽略双引号中的逗号</li>
-                <li>升级SpringBoot到最新版本2.5.6</li>
-                <li>升级pagehelper到最新版1.4.0</li>
-                <li>升级spring-boot-mybatis到最新版2.2.0</li>
-                <li>升级oshi到最新版本v5.8.2</li>
-                <li>升级druid到最新版1.2.8</li>
-                <li>升级velocity到最新版本2.3</li>
-                <li>升级fastjson到最新版1.2.78</li>
-                <li>升级axios到最新版本0.24.0</li>
-                <li>升级dart-sass到版本1.32.13</li>
-                <li>升级core-js到最新版本3.19.1</li>
-                <li>升级jsencrypt到最新版本3.2.1</li>
-                <li>升级js-cookie到最新版本3.0.1</li>
-                <li>升级file-saver到最新版本2.0.5</li>
-                <li>升级sass-loader到最新版本10.1.1</li>
-                <li>升级element-ui到最新版本2.15.6</li>
-                <li>新增sendGet无参请求方法</li>
-                <li>禁用el-tag组件的渐变动画</li>
-                <li>代码生成点击预览重置激活tab</li>
-                <li>AjaxResult重写put方法，以方便链式调用</li>
-                <li>优化登录/验证码请求headers不设置token</li>
-                <li>优化用户个人信息接口防止修改用户名</li>
-                <li>优化Cron表达式生成器关闭时销毁避免缓存</li>
-                <li>优化注册成功提示消息类型success</li>
-                <li>优化aop语法，使用spring自动注入注解</li>
-                <li>优化记录登录信息，移除不必要的修改</li>
-                <li>优化mybatis全局默认的执行器</li>
-                <li>优化Excel导入图片可能出现的异常</li>
-                <li>修复代码生成模板主子表删除缺少事务</li>
-                <li>修复日志记录可能出现的转换异常</li>
-                <li>修复代码生成复选框字典遗漏问题</li>
-                <li>修复关闭xss功能导致可重复读RepeatableFilter失效</li>
-                <li>修复字符串无法被反转义问题</li>
-                <li>修复后端主子表代码模板方法名生成错误问题</li>
-                <li>修复xss过滤后格式出现的异常</li>
-                <li>修复swagger没有指定dataTypeClass导致启动出现warn日志</li>
-                <li>其他细节优化</li>
-              </ol>
-            </el-collapse-item>
-            <el-collapse-item title="v3.7.0 - 2021-09-13">
-              <ol>
-                <li>参数管理支持配置验证码开关</li>
-                <li>新增是否开启用户注册功能</li>
-                <li>定时任务支持在线生成cron表达式</li>
-                <li>菜单管理支持配置路由参数</li>
-                <li>支持自定义注解实现接口限流</li>
-                <li>Excel注解支持Image图片导入</li>
-                <li>自定义弹层溢出滚动样式</li>
-                <li>自定义可拖动弹窗宽度指令</li>
-                <li>自定义可拖动弹窗高度指令</li>
-                <li>修复任意账户越权问题</li>
-                <li>修改时检查用户数据权限范围</li>
-                <li>修复保存配置主题颜色失效问题</li>
-                <li>新增暗色菜单风格主题</li>
-                <li>菜单&部门新增展开/折叠功能</li>
-                <li>页签新增关闭左侧&添加图标</li>
-                <li>顶部菜单排除隐藏的默认路由</li>
-                <li>顶部菜单同步系统主题样式</li>
-                <li>跳转路由高亮相对应的菜单栏</li>
-                <li>代码生成主子表多选行数据</li>
-                <li>日期范围支持添加多组</li>
-                <li>升级element-ui到最新版本2.15.5</li>
-                <li>升级oshi到最新版本v5.8.0</li>
-                <li>升级commons.io到最新版本v2.11.0</li>
-                <li>定时任务屏蔽ldap远程调用</li>
-                <li>定时任务屏蔽http(s)远程调用</li>
-                <li>补充定时任务表字段注释</li>
-                <li>定时任务对检查异常进行事务回滚</li>
-                <li>启用父部门状态排除顶级节点</li>
-                <li>富文本新增上传文件大小限制</li>
-                <li>默认首页使用keep-alive缓存</li>
-                <li>修改代码生成字典回显样式</li>
-                <li>自定义分页合理化传入参数</li>
-                <li>修复字典组件值为整形不显示问题</li>
-                <li>修复定时任务日志执行状态显示</li>
-                <li>角色&菜单新增字段属性提示信息</li>
-                <li>修复角色分配用户页面参数类型错误提醒</li>
-                <li>优化布局设置动画特效</li>
-                <li>优化异常处理信息</li>
-                <li>优化错误token导致的解析异常</li>
-                <li>密码框新增显示切换密码图标</li>
-                <li>定时任务新增更多操作</li>
-                <li>更多操作按钮添加权限控制</li>
-                <li>导入用户样式优化</li>
-                <li>提取通用方法到基类控制器</li>
-                <li>优化使用权限工具获取用户信息</li>
-                <li>优化用户不能删除自己</li>
-                <li>优化XSS跨站脚本过滤</li>
-                <li>优化代码生成模板</li>
-                <li>验证码默认20s超时</li>
-                <li>BLOB下载时清除URL对象引用</li>
-                <li>代码生成导入表按创建时间排序</li>
-                <li>修复代码生成页面数据编辑保存之后总是跳转第一页的问题</li>
-                <li>修复带safari浏览器无法格式化utc日期格式yyyy-MM-dd'T'HH:mm:ss.SSS问题</li>
-                <li>多图上传组件移除多余的api地址&验证失败导致图片删除问题&无法删除相应图片修复</li>
-                <li>其他细节优化</li>
-              </ol>
-            </el-collapse-item>
-            <el-collapse-item title="v3.6.0 - 2021-07-12">
-              <ol>
-                <li>角色管理新增分配用户功能</li>
-                <li>用户管理新增分配角色功能</li>
-                <li>日志列表支持排序操作</li>
-                <li>优化参数&字典缓存操作</li>
-                <li>系统布局配置支持动态标题开关</li>
-                <li>菜单路由配置支持内链访问</li>
-                <li>默认访问后端首页新增提示语</li>
-                <li>富文本默认上传返回url类型</li>
-                <li>新增自定义弹窗拖拽指令</li>
-                <li>全局注册常用通用组件</li>
-                <li>全局挂载字典标签组件</li>
-                <li>ImageUpload组件支持多图片上传</li>
-                <li>FileUpload组件支持多文件上传</li>
-                <li>文件上传组件添加数量限制属性</li>
-                <li>富文本编辑组件添加类型属性</li>
-                <li>富文本组件工具栏配置视频</li>
-                <li>封装通用iframe组件</li>
-                <li>限制超级管理员不允许操作</li>
-                <li>用户信息长度校验限制</li>
-                <li>分页组件新增pagerCount属性</li>
-                <li>添加bat脚本执行应用</li>
-                <li>升级oshi到最新版本v5.7.4</li>
-                <li>升级element-ui到最新版本2.15.2</li>
-                <li>升级pagehelper到最新版1.3.1</li>
-                <li>升级commons.io到最新版本v2.10.0</li>
-                <li>升级commons.fileupload到最新版本v1.4</li>
-                <li>升级swagger到最新版本v3.0.0</li>
-                <li>修复关闭confirm提示框控制台报错问题</li>
-                <li>修复存在的SQL注入漏洞问题</li>
-                <li>定时任务屏蔽rmi远程调用</li>
-                <li>修复用户搜索分页变量错误</li>
-                <li>修复导出角色数据范围翻译缺少仅本人</li>
-                <li>修复表单构建选择下拉选择控制台报错问题</li>
-                <li>优化图片工具类读取文件</li>
-                <li>其他细节优化</li>
-              </ol>
-            </el-collapse-item>
-            <el-collapse-item title="v3.5.0 - 2021-05-25">
-              <ol>
-                <li>新增菜单导航显示风格TopNav（false为左侧导航菜单，true为顶部导航菜单）</li>
-                <li>布局设置支持保存&重置配置</li>
-                <li>修复树表数据显示不全&加载慢问题</li>
-                <li>新增IE浏览器版本过低提示页面</li>
-                <li>用户登录后记录最后登录IP&时间</li>
-                <li>页面导出按钮点击之后添加遮罩</li>
-                <li>富文本编辑器支持自定义上传地址</li>
-                <li>富文本编辑组件新增readOnly属性</li>
-                <li>页签TagsView新增关闭右侧功能</li>
-                <li>显隐列组件加载初始默认隐藏列</li>
-                <li>关闭头像上传窗口还原默认图片</li>
-                <li>个人信息添加手机&邮箱重复验证</li>
-                <li>代码生成模板导出按钮点击后添加遮罩</li>
-                <li>代码生成模板树表操作列添加新增按钮</li>
-                <li>代码生成模板修复主子表字段重名问题</li>
-                <li>升级fastjson到最新版1.2.76</li>
-                <li>升级druid到最新版本v1.2.6</li>
-                <li>升级mybatis到最新版3.5.6 阻止远程代码执行漏洞</li>
-                <li>升级oshi到最新版本v5.6.0</li>
-                <li>velocity剔除commons-collections版本，防止3.2.1版本的反序列化漏洞</li>
-                <li>数据监控页默认账户密码防止越权访问</li>
-                <li>修复firefox下表单构建拖拽会新打卡一个选项卡</li>
-                <li>修正后端导入表权限标识</li>
-                <li>修正前端操作日志&登录日志权限标识</li>
-                <li>设置Redis配置HashKey序列化</li>
-                <li>删除操作日志记录信息</li>
-                <li>上传媒体类型添加视频格式</li>
-                <li>修复请求形参未传值记录日志异常问题</li>
-                <li>优化xss校验json请求条件</li>
-                <li>树级结构更新子节点使用replaceFirst</li>
-                <li>优化ExcelUtil空值处理</li>
-                <li>日志记录过滤BindingResult对象，防止异常</li>
-                <li>修改主题后mini类型按钮无效问题</li>
-                <li>优化通用下载完成后删除节点</li>
-                <li>通用Controller添加响应返回消息</li>
-                <li>其他细节优化</li>
-              </ol>
-            </el-collapse-item>
-            <el-collapse-item title="v3.4.0 - 2021-02-22">
-              <ol>
-                <li>代码生成模板支持主子表</li>
-                <li>表格右侧工具栏组件支持显隐列</li>
-                <li>图片组件添加预览&移除功能</li>
-                <li>Excel注解支持Image图片导出</li>
-                <li>操作按钮组调整为朴素按钮样式</li>
-                <li>代码生成支持文件上传组件</li>
-                <li>代码生成日期控件区分范围</li>
-                <li>代码生成数据库文本类型生成表单文本域</li>
-                <li>用户手机邮箱&菜单组件修改允许空字符串</li>
-                <li>升级SpringBoot到最新版本2.2.13 提升启动速度</li>
-                <li>升级druid到最新版本v1.2.4</li>
-                <li>升级fastjson到最新版1.2.75</li>
-                <li>升级element-ui到最新版本2.15.0</li>
-                <li>修复IE11浏览器报错问题</li>
-                <li>优化多级菜单之间切换无法缓存的问题</li>
-                <li>修复四级菜单无法显示问题</li>
-                <li>修正侧边栏静态路由丢失问题</li>
-                <li>修复角色管理-编辑角色-功能权限显示异常</li>
-                <li>配置文件新增redis数据库索引属性</li>
-                <li>权限工具类增加admin判断</li>
-                <li>角色非自定义权限范围清空选择值</li>
-                <li>修复导入数据为负浮点数时丢失精度问题</li>
-                <li>移除path-to-regexp正则匹配插件</li>
-                <li>修复生成树表代码异常</li>
-                <li>修改ip字段长度防止ipv6地址长度不够</li>
-                <li>防止get请求参数值为false或0等特殊值会导致无法正确的传参</li>
-                <li>登录后push添加catch防止出现检查错误</li>
-                <li>其他细节优化</li>
-              </ol>
-            </el-collapse-item>
-            <el-collapse-item title="v3.3.0 - 2020-12-14">
-              <ol>
-                <li>新增缓存监控功能</li>
-                <li>支持主题风格配置</li>
-                <li>修复多级菜单之间切换无法缓存的问题</li>
-                <li>多级菜单自动配置组件</li>
-                <li>代码生成预览支持高亮显示</li>
-                <li>支持Get请求映射Params参数</li>
-                <li>删除用户和角色解绑关联</li>
-                <li>去除用户手机邮箱部门必填验证</li>
-                <li>Excel支持注解align对齐方式</li>
-                <li>Excel支持导入Boolean型数据</li>
-                <li>优化头像样式，鼠标移入悬停遮罩</li>
-                <li>代码生成预览提供滚动机制</li>
-                <li>代码生成删除多余的数字float类型</li>
-                <li>修正转换字符串的目标字符集属性</li>
-                <li>回显数据字典防止空值报错</li>
-                <li>日志记录增加过滤多文件场景</li>
-                <li>修改缓存Set方法可能导致嵌套的问题</li>
-                <li>移除前端一些多余的依赖</li>
-                <li>防止安全扫描YUI出现的风险提示</li>
-                <li>修改node-sass为dart-sass</li>
-                <li>升级SpringBoot到最新版本2.1.18</li>
-                <li>升级poi到最新版本4.1.2</li>
-                <li>升级oshi到最新版本v5.3.6</li>
-                <li>升级bitwalker到最新版本1.21</li>
-                <li>升级axios到最新版本0.21.0</li>
-                <li>升级element-ui到最新版本2.14.1</li>
-                <li>升级vue到最新版本2.6.12</li>
-                <li>升级vuex到最新版本3.6.0</li>
-                <li>升级vue-cli到版本4.5.9</li>
-                <li>升级vue-router到最新版本3.4.9</li>
-                <li>升级vue-cli到最新版本4.4.6</li>
-                <li>升级vue-cropper到最新版本0.5.5</li>
-                <li>升级clipboard到最新版本2.0.6</li>
-                <li>升级core-js到最新版本3.8.1</li>
-                <li>升级echarts到最新版本4.9.0</li>
-                <li>升级file-saver到最新版本2.0.4</li>
-                <li>升级fuse.js到最新版本6.4.3</li>
-                <li>升级js-beautify到最新版本1.13.0</li>
-                <li>升级js-cookie到最新版本2.2.1</li>
-                <li>升级path-to-regexp到最新版本6.2.0</li>
-                <li>升级quill到最新版本1.3.7</li>
-                <li>升级screenfull到最新版本5.0.2</li>
-                <li>升级sortablejs到最新版本1.10.2</li>
-                <li>升级vuedraggable到最新版本2.24.3</li>
-                <li>升级chalk到最新版本4.1.0</li>
-                <li>升级eslint到最新版本7.15.0</li>
-                <li>升级eslint-plugin-vue到最新版本7.2.0</li>
-                <li>升级lint-staged到最新版本10.5.3</li>
-                <li>升级runjs到最新版本4.4.2</li>
-                <li>升级sass-loader到最新版本10.1.0</li>
-                <li>升级script-ext-html-webpack-plugin到最新版本2.1.5</li>
-                <li>升级svg-sprite-loader到最新版本5.1.1</li>
-                <li>升级vue-template-compiler到最新版本2.6.12</li>
-                <li>其他细节优化</li>
-              </ol>
-            </el-collapse-item>
-            <el-collapse-item title="v3.2.1 - 2020-11-18">
-              <ol>
-                <li>阻止任意文件下载漏洞</li>
-                <li>代码生成支持上传控件</li>
-                <li>新增图片上传组件</li>
-                <li>调整默认首页</li>
-                <li>升级druid到最新版本v1.2.2</li>
-                <li>mapperLocations配置支持分隔符</li>
-                <li>权限信息调整</li>
-                <li>调整sql默认时间</li>
-                <li>解决代码生成没有bit类型的问题</li>
-                <li>升级pagehelper到最新版1.3.0</li>
-              </ol>
-            </el-collapse-item>
-            <el-collapse-item title="v3.2.0 - 2020-10-10">
-              <ol>
-                <li>升级springboot版本到2.1.17 提升安全性</li>
-                <li>升级oshi到最新版本v5.2.5</li>
-                <li>升级druid到最新版本v1.2.1</li>
-                <li>升级jjwt到版本0.9.1</li>
-                <li>升级fastjson到最新版1.2.74</li>
-                <li>修改sass为node-sass，避免el-icon图标乱码</li>
-                <li>代码生成支持同步数据库</li>
-                <li>代码生成支持富文本控件</li>
-                <li>代码生成页面时不忽略remark属性</li>
-                <li>代码生成添加select必填选项</li>
-                <li>Excel导出类型NUMERIC支持精度浮点类型</li>
-                <li>Excel导出targetAttr优化获取值，防止get方法不规范</li>
-                <li>Excel注解支持自动统计数据总和</li>
-                <li>Excel注解支持设置BigDecimal精度&舍入规则</li>
-                <li>菜单&数据权限新增（展开/折叠 全选/全不选 父子联动）</li>
-                <li>允许用户分配到部门父节点</li>
-                <li>菜单新增是否缓存keep-alive</li>
-                <li>表格操作列间距调整</li>
-                <li>限制系统内置参数不允许删除</li>
-                <li>富文本组件优化，支持自定义高度&图片冲突问题</li>
-                <li>富文本工具栏样式对齐</li>
-                <li>导入excel整形值校验优化</li>
-                <li>修复页签关闭所有时固定标签路由不刷新问题</li>
-                <li>表单构建布局型组件新增按钮</li>
-                <li>左侧菜单文字过长显示省略号</li>
-                <li>修正根节点为子部门时，树状结构显示问题</li>
-                <li>修正调用目标字符串最大长度</li>
-                <li>修正菜单提示信息错误</li>
-                <li>修正定时任务执行一次权限标识</li>
-                <li>修正数据库字符串类型nvarchar</li>
-                <li>优化递归子节点</li>
-                <li>优化数据权限判断</li>
-                <li>其他细节优化</li>
-              </ol>
-            </el-collapse-item>
-
-            <el-collapse-item title="v3.1.0 - 2020-08-13">
-              <ol>
-                <li>表格工具栏右侧添加刷新&显隐查询组件</li>
-                <li>后端支持CORS跨域请求</li>
-                <li>代码生成支持选择上级菜单</li>
-                <li>代码生成支持自定义路径</li>
-                <li>代码生成支持复选框</li>
-                <li>Excel导出导入支持dictType字典类型</li>
-                <li>Excel支持分割字符串组内容</li>
-                <li>验证码类型支持（数组计算、字符验证）</li>
-                <li>升级vue-cli版本到4.4.4</li>
-                <li>修改 node-sass 为 dart-sass</li>
-                <li>表单类型为Integer/Long设置整形默认值</li>
-                <li>代码生成器默认mapper路径与默认mapperScan路径不一致</li>
-                <li>优化防重复提交拦截器</li>
-                <li>优化上级菜单不能选择自己</li>
-                <li>修复角色的权限分配后，未实时生效问题</li>
-                <li>修复在线用户日志记录类型</li>
-                <li>修复富文本空格和缩进保存后不生效问题</li>
-                <li>修复在线用户判断逻辑</li>
-                <li>唯一限制条件只返回单条数据</li>
-                <li>添加获取当前的环境配置方法</li>
-                <li>超时登录后页面跳转到首页</li>
-                <li>全局异常状态汉化拦截处理</li>
-                <li>HTML过滤器改为将html转义</li>
-                <li>检查字符支持小数点&降级改成异常提醒</li>
-                <li>其他细节优化</li>
-              </ol>
-            </el-collapse-item>
-
-            <el-collapse-item title="v3.0.0 - 2020-07-20">
-              <ol>
-                <li>单应用调整为多模块项目</li>
-                <li>升级element-ui版本到2.13.2</li>
-                <li>删除babel，提高编译速度。</li>
-                <li>新增菜单默认主类目</li>
-                <li>编码文件名修改为uuid方式</li>
-                <li>定时任务cron表达式验证</li>
-                <li>角色权限修改时已有权限未自动勾选异常修复</li>
-                <li>防止切换权限用户后登录出现404</li>
-                <li>Excel支持sort导出排序</li>
-                <li>创建用户不允许选择超级管理员角色</li>
-                <li>修复代码生成导入表结构出现异常页面不提醒问题</li>
-                <li>修复代码生成点击多次表修改数据不变化的问题</li>
-                <li>修复头像上传成功二次打开无法改变裁剪框大小和位置问题</li>
-                <li>修复布局为small者mini用户表单显示错位问题</li>
-                <li>修复热部署导致的强换异常问题</li>
-                <li>修改用户管理复选框宽度，防止部分浏览器出现省略号</li>
-                <li>IpUtils工具，清除Xss特殊字符，防止Xff注入攻击</li>
-                <li>生成domain 如果是浮点型 统一用BigDecimal</li>
-                <li>定时任务调整label-width，防止部署出现错位</li>
-                <li>调整表头固定列默认样式</li>
-                <li>代码生成模板调整，字段为String并且必填则加空串条件</li>
-                <li>代码生成字典Integer/Long使用parseInt</li>
-                <li>
-                  修复dict_sort不可update为0的问题&查询返回增加dict_sort升序排序
-                </li>
-                <li>修正岗位导出权限注解</li>
-                <li>禁止加密密文返回前端</li>
-                <li>修复代码生成页面中的查询条件创建时间未生效的问题</li>
-                <li>修复首页搜索菜单外链无法点击跳转问题</li>
-                <li>修复菜单管理选择图标，backspace删除时不过滤数据</li>
-                <li>用户管理部门分支节点不可检查&显示计数</li>
-                <li>数据范围过滤属性调整</li>
-                <li>其他细节优化</li>
-              </ol>
-            </el-collapse-item>
-
-            <el-collapse-item title="v2.3.0 - 2020-06-01">
-              <ol>
-                <li>升级fastjson到最新版1.2.70 修复高危安全漏洞</li>
-                <li>dev启动默认打开浏览器</li>
-                <li>vue-cli使用默认source-map</li>
-                <li>slidebar eslint报错优化</li>
-                <li>当tags-view滚动关闭右键菜单</li>
-                <li>字典管理添加缓存读取</li>
-                <li>参数管理支持缓存操作</li>
-                <li>支持一级菜单（和主页同级）在main区域显示</li>
-                <li>限制外链地址必须以http(s)开头</li>
-                <li>tagview & sidebar 主题颜色与element ui(全局)同步</li>
-                <li>修改数据源类型优先级，先根据方法，再根据类</li>
-                <li>支持是否需要设置token属性，自定义返回码消息。</li>
-                <li>swagger请求前缀加入配置。</li>
-                <li>登录地点设置内容过长则隐藏显示</li>
-                <li>修复定时任务执行一次按钮后不提示消息问题</li>
-                <li>修改上级部门（选择项排除本身和下级）</li>
-                <li>通用http发送方法增加参数 contentType 编码类型</li>
-                <li>更换IP地址查询接口</li>
-                <li>修复页签变量undefined</li>
-                <li>添加校验部门包含未停用的子部门</li>
-                <li>修改定时任务详情下次执行时间日期显示错误</li>
-                <li>角色管理查询设置默认排序字段</li>
-                <li>swagger添加enable参数控制是否启用</li>
-                <li>只对json类型请求构建可重复读取inputStream的request</li>
-                <li>修改代码生成字典字段int类型没有自动选中问题</li>
-                <li>vuex用户名取值修正</li>
-                <li>表格树模板去掉多余的)</li>
-                <li>代码生成序号修正</li>
-                <li>全屏情况下不调整上外边距</li>
-                <li>代码生成Date字段添加默认格式</li>
-                <li>用户管理角色选择权限控制</li>
-                <li>修复路由懒加载报错问题</li>
-                <li>模板sql.vm添加菜单状态</li>
-                <li>设置用户名称不能修改</li>
-                <li>dialog添加append-to-body属性，防止ie遮罩</li>
-                <li>菜单区分状态和显示隐藏功能</li>
-                <li>升级fastjson到最新版1.2.68 修复安全加固</li>
-                <li>修复代码生成如果选择字典类型缺失逗号问题</li>
-                <li>登录请求params更换为data，防止暴露url</li>
-                <li>日志返回时间格式处理</li>
-                <li>添加handle控制允许拖动的元素</li>
-                <li>布局设置点击扩大范围</li>
-                <li>代码生成列属性排序查询</li>
-                <li>代码生成列支持拖动排序</li>
-                <li>修复时间格式不支持ios问题</li>
-                <li>表单构建添加父级class，防止冲突</li>
-                <li>定时任务并发属性修正</li>
-                <li>角色禁用&菜单隐藏不查询权限</li>
-                <li>其他细节优化</li>
-              </ol>
-            </el-collapse-item>
-
-            <el-collapse-item title="v2.2.0 - 2020-03-18">
-              <ol>
-                <li>系统监控新增定时任务功能</li>
-                <li>添加一个打包Web工程bat</li>
-                <li>修复页签鼠标滚轮按下的时候，可以关闭不可关闭的tag</li>
-                <li>修复点击退出登录有时会无提示问题</li>
-                <li>修复防重复提交注解无效问题</li>
-                <li>修复通知公告批量删除异常问题</li>
-                <li>添加菜单时路由地址必填限制</li>
-                <li>代码生成字段描述可编辑</li>
-                <li>修复用户修改个人信息导致缓存不过期问题</li>
-                <li>个人信息创建时间获取正确属性值</li>
-                <li>操作日志详细显示正确类型</li>
-                <li>导入表单击行数据时选中对应的复选框</li>
-                <li>批量替换表前缀逻辑调整</li>
-                <li>固定重定向路径表达式</li>
-                <li>升级element-ui版本到2.13.0</li>
-                <li>操作日志排序调整</li>
-                <li>修复charts切换侧边栏或者缩放窗口显示bug</li>
-                <li>其他细节优化</li>
-              </ol>
-            </el-collapse-item>
-
-            <el-collapse-item title="v2.1.0 - 2020-02-24">
-              <ol>
-                <li>新增表单构建</li>
-                <li>代码生成支持树表结构</li>
-                <li>新增用户导入</li>
-                <li>修复动态加载路由页面刷新问题</li>
-                <li>修复地址开关无效问题</li>
-                <li>汉化错误提示页面</li>
-                <li>代码生成已知问题修改</li>
-                <li>修复多数据源下配置关闭出现异常处理</li>
-                <li>添加HTML过滤器，用于去除XSS漏洞隐患</li>
-                <li>修复上传头像控制台出现异常</li>
-                <li>修改用户管理分页不正确的问题</li>
-                <li>修复验证码记录提示错误</li>
-                <li>修复request.js缺少Message引用</li>
-                <li>修复表格时间为空出现的异常</li>
-                <li>添加Jackson日期反序列化时区配置</li>
-                <li>调整根据用户权限加载菜单数据树形结构</li>
-                <li>调整成功登录不恢复按钮，防止多次点击</li>
-                <li>修改用户个人资料同步缓存信息</li>
-                <li>修复页面同时出现el-upload和Editor不显示处理</li>
-                <li>修复在角色管理页修改菜单权限偶尔未选中问题</li>
-                <li>配置文件新增redis密码属性</li>
-                <li>设置mybatis全局的配置文件</li>
-                <li>其他细节优化</li>
-              </ol>
-            </el-collapse-item>
-
-            <el-collapse-item title="v2.0.0 - 2019-12-02">
-              <ol>
-                <li>新增代码生成</li>
-                <li>新增@RepeatSubmit注解，防止重复提交</li>
-                <li>新增菜单主目录添加/删除操作</li>
-                <li>日志记录过滤特殊对象，防止转换异常</li>
-                <li>修改代码生成路由脚本错误</li>
-                <li>用户上传头像实时同步缓存，无需重新登录</li>
-                <li>调整切换页签后不重新加载数据</li>
-                <li>添加jsencrypt实现参数的前端加密</li>
-                <li>系统退出删除用户缓存记录</li>
-                <li>其他细节优化</li>
-              </ol>
-            </el-collapse-item>
-            <el-collapse-item title="v1.1.0 - 2019-11-11">
-              <ol>
-                <li>新增在线用户管理</li>
-                <li>新增按钮组功能实现（批量删除、导出、清空）</li>
-                <li>新增查询条件重置按钮</li>
-                <li>新增Swagger全局Token配置</li>
-                <li>新增后端参数校验</li>
-                <li>修复字典管理页面的日期查询异常</li>
-                <li>修改时间函数命名防止冲突</li>
-                <li>去除菜单上级校验，默认为顶级</li>
-                <li>修复用户密码无法修改问题</li>
-                <li>修复菜单类型为按钮时不显示权限标识</li>
-                <li>其他细节优化</li>
-              </ol>
-            </el-collapse-item>
-            <el-collapse-item title="v1.0.0 - 2019-10-08">
-              <ol>
-                <li>三江学院前后端分离系统正式发布</li>
-              </ol>
-            </el-collapse-item>
-          </el-collapse>
-        </el-card>
-      </el-col>
-      <el-col :xs="24" :sm="24" :md="12" :lg="8">
-        <el-card class="update-log">
-          <template v-slot:header>
-            <div class="clearfix">
-              <span>捐赠支持</span>
+            <div class="todo-item" @click="$router.push('/property/repair')">
+              <div class="todo-icon todo-icon-blue">
+                <el-icon><Loading /></el-icon>
+              </div>
+              <div class="todo-info">
+                <span class="todo-label">处理中工单</span>
+                <span class="todo-desc">跟进维修进度</span>
+              </div>
+              <span class="todo-count todo-count-blue">{{ todoSummary.processingRepairs || 0 }}</span>
             </div>
-          </template>
-          <div class="body">
-            <img
-              src="@/assets/images/pay.png"
-              alt="donate"
-              style="width:100%"
+            <div class="todo-item" @click="$router.push('/property/complaint')">
+              <div class="todo-icon todo-icon-orange">
+                <el-icon><ChatDotRound /></el-icon>
+              </div>
+              <div class="todo-info">
+                <span class="todo-label">待处理投诉</span>
+                <span class="todo-desc">业主反馈需要回复</span>
+              </div>
+              <span class="todo-count todo-count-orange">{{ todoSummary.pendingComplaints || 0 }}</span>
+            </div>
+            <div class="todo-item" @click="$router.push('/property/visitor')">
+              <div class="todo-icon todo-icon-teal">
+                <el-icon><Avatar /></el-icon>
+              </div>
+              <div class="todo-info">
+                <span class="todo-label">待审核访客</span>
+                <span class="todo-desc">访客进入需审批</span>
+              </div>
+              <span class="todo-count todo-count-teal">{{ todoSummary.pendingVisitors || 0 }}</span>
+            </div>
+            <div class="todo-item" @click="$router.push('/property/feeRecord')">
+              <div class="todo-icon todo-icon-amber">
+                <el-icon><Money /></el-icon>
+              </div>
+              <div class="todo-info">
+                <span class="todo-label">未缴费账单</span>
+                <span class="todo-desc">提醒业主按时缴费</span>
+              </div>
+              <span class="todo-count todo-count-amber">{{ todoSummary.unpaidFees || 0 }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <!-- ==================== 2. 业主 (Property Owner) 首页 ==================== -->
+    <template v-else-if="isOwner">
+      <!-- 业主欢迎横幅 -->
+      <div class="welcome-banner owner-banner">
+        <div class="welcome-left">
+          <h2 class="welcome-title">
+            <span class="greeting-icon">🏠</span>
+            {{ greetingText }}，{{ ownerRealName || nickName }} 业主
+          </h2>
+          <p class="welcome-date">欢迎回到您的温馨家园 · 当前绑定房屋：<strong>{{ ownerStats.roomName }}</strong></p>
+        </div>
+        <div class="welcome-actions">
+          <el-button class="action-btn" @click="$router.push('/portal/myRepair')">
+            <el-icon><Tools /></el-icon>
+            <span>在线报修</span>
+          </el-button>
+          <el-button class="action-btn" @click="openVisitorDialog">
+            <el-icon><Avatar /></el-icon>
+            <span>访客申请</span>
+          </el-button>
+          <el-button class="action-btn" @click="$router.push('/portal/myBill')">
+            <el-icon><Money /></el-icon>
+            <span>在线缴费</span>
+          </el-button>
+          <el-button class="action-btn" @click="$router.push('/portal/myComplaint')">
+            <el-icon><ChatDotRound /></el-icon>
+            <span>投诉建议</span>
+          </el-button>
+        </div>
+      </div>
+
+      <!-- 业主 KPI 数字看板 -->
+      <div class="kpi-row">
+        <div class="kpi-card kpi-purple" @click="$router.push('/portal/myRepair')">
+          <div class="kpi-icon-wrap">
+            <el-icon><Tools /></el-icon>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-value">{{ ownerStats.pendingRepairs }}</span>
+            <span class="kpi-label">进行中报修</span>
+          </div>
+          <div class="kpi-decoration"></div>
+        </div>
+        <div class="kpi-card kpi-rose" @click="$router.push('/portal/myBill')">
+          <div class="kpi-icon-wrap">
+            <el-icon><Money /></el-icon>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-value">{{ ownerStats.unpaidFees }}</span>
+            <span class="kpi-label">未支付账单</span>
+          </div>
+          <div class="kpi-decoration"></div>
+        </div>
+        <div class="kpi-card kpi-teal" @click="openVisitorDialog">
+          <div class="kpi-icon-wrap">
+            <el-icon><Avatar /></el-icon>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-value">{{ ownerStats.visitorPasses }}</span>
+            <span class="kpi-label">有效访客凭证</span>
+          </div>
+          <div class="kpi-decoration"></div>
+        </div>
+        <div class="kpi-card kpi-amber" @click="$router.push('/portal/myRoom')">
+          <div class="kpi-icon-wrap">
+            <el-icon><House /></el-icon>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-value">正常</span>
+            <span class="kpi-label">房屋状态</span>
+          </div>
+          <div class="kpi-decoration"></div>
+        </div>
+      </div>
+
+      <!-- 业主中部两栏：社区公告栏与生活助手 -->
+      <div class="chart-row">
+        <!-- 社区公告 -->
+        <div class="chart-card chart-main notice-board">
+          <div class="card-header">
+            <h3 class="card-title">
+              <span class="title-dot dot-blue"></span>
+              最新社区公告栏
+            </h3>
+            <el-button link type="primary" class="view-all-btn" @click="$router.push('/portal/myNotice')">
+              查看更多公告
+            </el-button>
+          </div>
+          <div class="notice-list">
+            <div v-for="item in communityNotices" :key="item.id" class="notice-item">
+              <div class="notice-title-row">
+                <el-tag :type="item.type" size="small" effect="dark" class="notice-tag">
+                  {{ item.type === 'danger' ? '停水停电' : item.type === 'success' ? '社区活动' : '温馨提示' }}
+                </el-tag>
+                <h4 class="notice-title-text">{{ item.title }}</h4>
+                <span class="notice-time">{{ item.time }}</span>
+              </div>
+              <p class="notice-summary">{{ item.summary }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 生活助手/天气/物业服务 -->
+        <div class="chart-card chart-side assistant-card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <span class="title-dot dot-green"></span>
+              24小时管家服务
+            </h3>
+          </div>
+          <div class="assistant-body">
+            <div class="weather-box">
+              <div class="weather-left">
+                <span class="weather-temp">26°C</span>
+                <span class="weather-text">南京市 · 晴朗 🌤️</span>
+              </div>
+              <div class="weather-right">
+                <p>湿度：45%</p>
+                <p>空气质量：优 (32)</p>
+              </div>
+            </div>
+            <div class="service-contacts">
+              <div class="contact-item">
+                <span class="contact-label">物业管家热线：</span>
+                <span class="contact-value">025-8888-8888</span>
+              </div>
+              <div class="contact-item">
+                <span class="contact-label">24小时工程急修：</span>
+                <span class="contact-value">025-9999-9999</span>
+              </div>
+              <div class="contact-item">
+                <span class="contact-label">小区安防控制室：</span>
+                <span class="contact-value">025-7777-7777</span>
+              </div>
+            </div>
+            <div class="service-tips">
+              <div class="tip-icon">💡</div>
+              <p class="tip-text">盛夏来临，空调负荷增大。离家请注意关闭大功率电器，做好用电安全防护。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 业主底部：我的报修历史进度 -->
+      <div class="list-row">
+        <div class="list-card list-main">
+          <div class="card-header">
+            <h3 class="card-title">
+              <span class="title-dot dot-orange"></span>
+              我的报修进度跟进
+            </h3>
+            <el-button link type="primary" class="view-all-btn" @click="$router.push('/portal/myRepair')">
+              去提报修 →
+            </el-button>
+          </div>
+          <div class="table-wrap">
+            <el-table :data="myRepairs" style="width: 100%" :header-cell-style="{ background: '#f8f9fe', color: '#606266', fontWeight: 600 }" size="default">
+              <el-table-column label="工单编号" prop="id" width="150" />
+              <el-table-column label="故障项" prop="title" min-width="180" />
+              <el-table-column label="分类" prop="category" width="120" align="center" />
+              <el-table-column label="分配维修师傅" prop="worker" width="180" />
+              <el-table-column label="提报时间" prop="time" width="140" align="center" />
+              <el-table-column label="当前状态" width="110" align="center">
+                <template #default="{ row }">
+                  <el-tag :type="repairStatusType(row.status)" size="small" effect="dark" round>
+                    {{ repairStatusText(row.status) }}
+                  </el-tag>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <div class="list-card list-side feedback-card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <span class="title-dot dot-purple"></span>
+              共建美好家园
+            </h3>
+          </div>
+          <div class="feedback-body">
+            <p class="feedback-intro">小区的美好建设离不开每位业主的建议。如果您对小区管理、卫生绿化、物业服务有任何意见，欢迎在此写下：</p>
+            <el-input
+              v-model="feedbackText"
+              type="textarea"
+              :rows="4"
+              placeholder="请输入您的意见或建议..."
+              resize="none"
+              class="feedback-input"
             />
-            <span style="display: inline-block; height: 30px; line-height: 30px"
-              >你可以请作者喝杯咖啡表示鼓励</span
-            >
+            <el-button type="primary" class="feedback-submit-btn" @click="submitFeedback">
+              提交反馈意见
+            </el-button>
           </div>
-        </el-card>
-      </el-col>
-    </el-row>
+        </div>
+      </div>
+    </template>
+
+    <!-- ==================== 3. 维修工人 (Worker) 首页 ==================== -->
+    <template v-else-if="isWorker">
+      <!-- 工人欢迎横幅 -->
+      <div class="welcome-banner worker-banner">
+        <div class="welcome-left">
+          <h2 class="welcome-title">
+            <span class="greeting-icon">🛠️</span>
+            {{ greetingText }}，{{ nickName }} 师傅！
+          </h2>
+          <p class="welcome-date">今天辛苦了！本月已累计维修完成 <strong>{{ workerStats.completedJobs }}</strong> 单，继续保持优秀服务！</p>
+        </div>
+        <div class="welcome-actions">
+          <el-button class="action-btn" @click="$router.push('/worker/myTask')">
+            <el-icon><Tools /></el-icon>
+            <span>工单接单中心</span>
+          </el-button>
+          <el-button class="action-btn" @click="showClockIn">
+            <el-icon><Avatar /></el-icon>
+            <span>考勤打卡</span>
+          </el-button>
+        </div>
+      </div>
+
+      <!-- 工人 KPI 数字看板 -->
+      <div class="kpi-row">
+        <div class="kpi-card kpi-rose" @click="$router.push('/worker/myTask')">
+          <div class="kpi-icon-wrap">
+            <el-icon><WarnTriangleFilled /></el-icon>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-value">{{ workerStats.todoJobs }}</span>
+            <span class="kpi-label">待我接单/处理</span>
+          </div>
+          <div class="kpi-decoration"></div>
+        </div>
+        <div class="kpi-card kpi-purple" @click="$router.push('/worker/myTask')">
+          <div class="kpi-icon-wrap">
+            <el-icon><Loading /></el-icon>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-value">{{ workerStats.doingJobs }}</span>
+            <span class="kpi-label">正在维修中</span>
+          </div>
+          <div class="kpi-decoration"></div>
+        </div>
+        <div class="kpi-card kpi-teal">
+          <div class="kpi-icon-wrap">
+            <el-icon><Tools /></el-icon>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-value">{{ workerStats.completedJobs }}</span>
+            <span class="kpi-label">本月已完成</span>
+          </div>
+          <div class="kpi-decoration"></div>
+        </div>
+        <div class="kpi-card kpi-amber">
+          <div class="kpi-icon-wrap">
+            <el-icon><User /></el-icon>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-value">{{ workerStats.rating }} ★</span>
+            <span class="kpi-label">我的服务评分</span>
+          </div>
+          <div class="kpi-decoration"></div>
+        </div>
+      </div>
+
+      <!-- 工人中部：指派给我的待处理工单 -->
+      <div class="chart-row">
+        <div class="chart-card chart-main">
+          <div class="card-header">
+            <h3 class="card-title">
+              <span class="title-dot dot-blue"></span>
+              我的专属待办工单
+            </h3>
+            <el-button link type="primary" class="view-all-btn" @click="$router.push('/worker/myTask')">
+              前往工单列表 →
+            </el-button>
+          </div>
+          <div class="worker-job-list">
+            <div v-for="job in workerJobs" :key="job.id" class="job-item-card">
+              <div class="job-item-header">
+                <div class="job-meta">
+                  <span class="job-id">{{ job.id }}</span>
+                  <span class="job-time">{{ job.time }}</span>
+                </div>
+                <el-tag :type="job.priority === 'high' ? 'danger' : job.priority === 'medium' ? 'warning' : 'info'" size="small" effect="dark">
+                  {{ job.priority === 'high' ? '紧急紧急' : job.priority === 'medium' ? '普通处理' : '低优跟进' }}
+                </el-tag>
+              </div>
+              <div class="job-item-body">
+                <h4 class="job-title">{{ job.title }}</h4>
+                <div class="job-info-row">
+                  <p><strong>业主：</strong>{{ job.owner }} ({{ job.phone }})</p>
+                  <p><strong>地址：</strong>{{ job.address }}</p>
+                </div>
+                <p class="job-desc"><strong>故障描述：</strong>{{ job.desc }}</p>
+              </div>
+              <div class="job-item-actions">
+                <el-button type="primary" size="default" class="job-action-btn" @click="handleJob(job.id, 'accept')">一键接单</el-button>
+                <el-button type="success" size="default" plain class="job-action-btn" @click="handleJob(job.id, 'complete')">维修完成</el-button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 安全警示/技术宝典 -->
+        <div class="chart-card chart-side assistant-card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <span class="title-dot dot-green"></span>
+              安全施工规程与提示
+            </h3>
+          </div>
+          <div class="assistant-body">
+            <div class="worker-tip-card red-warning">
+              <h4>⚠️ 安全第一，规范施工</h4>
+              <p>高空作业必须正确佩戴好安全带！带电排查电路故障时，必须使用绝缘手套和绝缘工具，严禁违规带电接线！</p>
+            </div>
+            <div class="worker-tip-card info-card">
+              <h4>💡 服务礼仪五步法</h4>
+              <p>1. 敲门轻扣三下并自报家门；<br>2. 进门必须自觉换上清洁鞋套；<br>3. 详细询问报修故障并礼貌说明方案；<br>4. 维修完成后主动清理施工垃圾；<br>5. 礼貌提醒业主在系统上给出评价。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 工人底部：业主评价反馈 -->
+      <div class="list-row">
+        <div class="list-card list-main">
+          <div class="card-header">
+            <h3 class="card-title">
+              <span class="title-dot dot-purple"></span>
+              我收到的最新业主评价
+            </h3>
+          </div>
+          <div class="feedback-list">
+            <div v-for="fb in workerFeedbacks" :key="fb.id" class="feedback-item">
+              <div class="feedback-item-header">
+                <div class="feedback-owner-info">
+                  <span class="fb-owner-name">{{ fb.owner }}</span>
+                  <span class="fb-owner-room">({{ fb.room }})</span>
+                </div>
+                <div class="fb-rating">
+                  <span v-for="n in fb.rating" :key="n" class="star">★</span>
+                  <span class="fb-date">{{ fb.date }}</span>
+                </div>
+              </div>
+              <p class="fb-content">“{{ fb.content }}”</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 业主端快捷访客自主登记 Dialog 弹窗 -->
+      <el-dialog title="新建访客自助预约" v-model="visitorOpen" width="480px" append-to-body destroy-on-close>
+        <el-form ref="visitorFormRef" :model="visitorForm" :rules="visitorRules" label-width="90px">
+          <el-form-item label="访客姓名" prop="visitorName">
+            <el-input v-model="visitorForm.visitorName" placeholder="请输入访客真实姓名" />
+          </el-form-item>
+          <el-form-item label="访客手机" prop="visitorPhone">
+            <el-input v-model="visitorForm.visitorPhone" placeholder="请输入11位手机号" />
+          </el-form-item>
+          <el-form-item label="到访时间" prop="visitTime">
+            <el-date-picker
+              v-model="visitorForm.visitTime"
+              type="datetime"
+              value-format="YYYY-MM-DD HH:mm:ss"
+              placeholder="选择到访时间"
+              style="width: 100%"
+            />
+          </el-form-item>
+          <el-form-item label="来访事由" prop="visitReason">
+            <el-select v-model="visitorForm.visitReason" placeholder="请选择或输入" filterable allow-create default-first-option style="width: 100%">
+              <el-option label="亲戚探访" value="亲戚探访" />
+              <el-option label="朋友聚会" value="朋友聚会" />
+              <el-option label="快递配送" value="快递配送" />
+              <el-option label="上门维修" value="上门维修" />
+            </el-select>
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <el-button type="primary" @click="submitVisitor">提交预约</el-button>
+          <el-button @click="visitorOpen = false">取消</el-button>
+        </template>
+      </el-dialog>
+    </template>
   </div>
 </template>
 
 <script setup name="Index">
-const version = ref('3.9.1')
+import * as echarts from 'echarts'
+import { getDashboardStats, getRepairTrend, getFeeCollection, getRecentRepairs, getTodoSummary } from '@/api/property/dashboard'
+import useUserStore from '@/store/modules/user'
+import { ElMessage } from 'element-plus'
+import request from '@/utils/request'
 
-function goTarget(url) {
-  window.open(url, '__blank')
+const userStore = useUserStore()
+const nickName = computed(() => userStore.nickName || '管理员')
+
+// 核心：基于角色进行首页内容判断
+const roles = computed(() => userStore.roles || [])
+const isAdmin = computed(() => roles.value.includes('admin') || roles.value.includes('property_admin'))
+const isWorker = computed(() => roles.value.includes('worker') || roles.value.includes('property_worker'))
+
+// 只要既不是管理员也不是工人，就展示为业主/普通用户视图，保证绝对不留白
+const isOwner = computed(() => !isAdmin.value && !isWorker.value)
+
+const hasBinding = ref(false)
+const ownerRealName = ref('')
+
+// 只要既不是管理员、工人，并且在数据库里还没有绑定房屋，就判定为未绑定的演示访客
+const isGuest = computed(() => !isAdmin.value && !isWorker.value && !hasBinding.value)
+
+// 时间问候语
+const greetingText = computed(() => {
+  const hour = new Date().getHours()
+  if (hour < 6) return '夜深了'
+  if (hour < 9) return '早上好'
+  if (hour < 12) return '上午好'
+  if (hour < 14) return '中午好'
+  if (hour < 18) return '下午好'
+  return '晚上好'
+})
+
+const currentDate = computed(() => {
+  const d = new Date()
+  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`
+})
+const currentWeekday = computed(() => {
+  return ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'][new Date().getDay()]
+})
+
+// ==================== 1. 超级管理员 / 物业管理员 逻辑 ====================
+// KPI 数据
+const stats = ref({})
+const animatedStats = reactive({
+  communityCount: 0,
+  ownerCount: 0,
+  roomCount: 0,
+  pendingRepairCount: 0
+})
+
+function animateCount(key, target) {
+  const duration = 1200
+  const steps = 40
+  const step = target / steps
+  let current = 0
+  const interval = setInterval(() => {
+    current += step
+    if (current >= target) {
+      animatedStats[key] = target
+      clearInterval(interval)
+    } else {
+      animatedStats[key] = Math.floor(current)
+    }
+  }, duration / steps)
 }
+
+// 报修列表
+const recentRepairs = ref([])
+// 待办摘要
+const todoSummary = ref({})
+
+// ECharts 引用
+const repairChartRef = ref(null)
+const feeChartRef = ref(null)
+let repairChart = null
+let feeChart = null
+
+// 报修状态
+function repairStatusText(status) {
+  const map = { '0': '待处理', '1': '处理中', '2': '已完成', '3': '已关闭' }
+  return map[status] || '未知'
+}
+function repairStatusType(status) {
+  const map = { '0': 'warning', '1': '', '2': 'success', '3': 'info' }
+  return map[status] || 'info'
+}
+
+function formatTime(time) {
+  if (!time) return '-'
+  const d = new Date(time)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+}
+
+// 初始化报修趋势图
+function initRepairChart(data) {
+  if (!repairChartRef.value) return
+  repairChart = echarts.init(repairChartRef.value)
+  const months = data.map(d => d.month)
+  const counts = data.map(d => d.count)
+  repairChart.setOption({
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: 'rgba(255,255,255,0.95)',
+      borderColor: '#e0e0e0',
+      borderWidth: 1,
+      textStyle: { color: '#333' },
+      formatter: '{b0}<br/>报修工单数：<b>{c0}</b>'
+    },
+    grid: { left: 50, right: 30, top: 30, bottom: 40 },
+    xAxis: {
+      type: 'category',
+      data: months,
+      axisLine: { lineStyle: { color: '#e0e0e0' } },
+      axisLabel: { color: '#888' },
+      axisTick: { show: false }
+    },
+    yAxis: {
+      type: 'value',
+      minInterval: 1,
+      axisLine: { show: false },
+      axisTick: { show: false },
+      splitLine: { lineStyle: { color: '#f0f0f0', type: 'dashed' } },
+      axisLabel: { color: '#888' }
+    },
+    series: [{
+      data: counts,
+      type: 'line',
+      smooth: true,
+      symbol: 'circle',
+      symbolSize: 8,
+      lineStyle: { width: 3, color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+        { offset: 0, color: '#7a22ff' },
+        { offset: 1, color: '#00e5ff' }
+      ])},
+      itemStyle: { color: '#7a22ff', borderWidth: 2, borderColor: '#fff' },
+      areaStyle: {
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          { offset: 0, color: 'rgba(122, 34, 255, 0.25)' },
+          { offset: 1, color: 'rgba(122, 34, 255, 0.02)' }
+        ])
+      }
+    }]
+  })
+}
+
+// 初始化收缴率环形图
+function initFeeChart(data) {
+  if (!feeChartRef.value) return
+  feeChart = echarts.init(feeChartRef.value)
+  const payRate = data.payRate || 0
+  feeChart.setOption({
+    tooltip: {
+      trigger: 'item',
+      backgroundColor: 'rgba(255,255,255,0.95)',
+      borderColor: '#e0e0e0',
+      borderWidth: 1,
+      textStyle: { color: '#333' },
+      formatter: '{b}: ¥{c} ({d}%)'
+    },
+    legend: {
+      bottom: 10,
+      left: 'center',
+      textStyle: { color: '#666', fontSize: 12 },
+      itemWidth: 10,
+      itemHeight: 10,
+      itemGap: 20
+    },
+    graphic: [{
+      type: 'text',
+      left: 'center',
+      top: '38%',
+      style: {
+        text: payRate.toFixed(1) + '%',
+        fontSize: 28,
+        fontWeight: 'bold',
+        fill: '#333',
+        textAlign: 'center'
+      }
+    }, {
+      type: 'text',
+      left: 'center',
+      top: '52%',
+      style: {
+        text: '收缴率',
+        fontSize: 13,
+        fill: '#999',
+        textAlign: 'center'
+      }
+    }],
+    series: [{
+      type: 'pie',
+      radius: ['55%', '75%'],
+      center: ['50%', '46%'],
+      avoidLabelOverlap: false,
+      label: { show: false },
+      labelLine: { show: false },
+      itemStyle: { borderRadius: 6, borderColor: '#fff', borderWidth: 3 },
+      data: [
+        { value: data.paidAmount || 0, name: '已缴费', itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          { offset: 0, color: '#36d399' },
+          { offset: 1, color: '#22c55e' }
+        ])}},
+        { value: data.unpaidAmount || 0, name: '未缴费', itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          { offset: 0, color: '#fb923c' },
+          { offset: 1, color: '#f97316' }
+        ])}}
+      ]
+    }]
+  })
+}
+
+// 窗口大小变化时重新绘制图表
+function handleResize() {
+  repairChart && repairChart.resize()
+  feeChart && feeChart.resize()
+}
+
+// 加载管理员所有数据
+async function loadAdminData() {
+  try {
+    const [statsRes, trendRes, feeRes, repairsRes, todoRes] = await Promise.allSettled([
+      getDashboardStats(),
+      getRepairTrend(),
+      getFeeCollection(),
+      getRecentRepairs(),
+      getTodoSummary()
+    ])
+
+    if (statsRes.status === 'fulfilled' && statsRes.value.data) {
+      stats.value = statsRes.value.data
+      animateCount('communityCount', stats.value.communityCount || 0)
+      animateCount('ownerCount', stats.value.ownerCount || 0)
+      animateCount('roomCount', stats.value.roomCount || 0)
+      animateCount('pendingRepairCount', stats.value.pendingRepairCount || 0)
+    }
+
+    if (trendRes.status === 'fulfilled' && trendRes.value.data) {
+      nextTick(() => initRepairChart(trendRes.value.data))
+    }
+
+    if (feeRes.status === 'fulfilled' && feeRes.value.data) {
+      nextTick(() => initFeeChart(feeRes.value.data))
+    }
+
+    if (repairsRes.status === 'fulfilled') {
+      recentRepairs.value = repairsRes.value.rows || repairsRes.value.data || []
+    }
+
+    if (todoRes.status === 'fulfilled' && todoRes.value.data) {
+      todoSummary.value = todoRes.value.data
+    }
+  } catch (e) {
+    console.error('Dashboard load error:', e)
+  }
+}
+
+// ==================== 2. 业主 (Property Owner) 逻辑与模拟数据 ====================
+const ownerStats = reactive({
+  pendingRepairs: 1,
+  unpaidFees: 1,
+  visitorPasses: 2,
+  roomName: '盛世嘉园 A区3栋1602室'
+})
+
+const communityNotices = ref([
+  { id: 1, title: '关于本周六小区供水管道清洗停水通知', type: 'danger', time: '10分钟前', summary: '为了保障居民饮水安全，物业将于本周六（6月6日）9:00-17:00对主管道进行全面清洗，期间将暂停供水，请各位业主提前做好蓄水准备，给您带来的不便敬请谅解！' },
+  { id: 2, title: '首届“和谐邻里·爱在盛夏”社区百家宴活动邀请函', type: 'success', time: '2小时前', summary: '夏日炎炎，邻里情深。物业联合居委会将于本周日傍晚在中央花园广场举办百家宴活动，诚邀广大业主带上自家拿手菜，共叙邻里情，现场更有精美节目及多轮幸运抽奖！' },
+  { id: 3, title: '关于小区地下车库充电桩升级扩建施工的公示', type: 'warning', time: '1天前', summary: '为满足新能源车主日益增长的充电需求，物业拟对地下一层B1/B2区新增50个公用快速充电桩，施工工期预计15天，期间部分行车道将受阻，请过往车主减速慢行。' }
+])
+
+const myRepairs = ref([
+  { id: 'WX20260602001', title: '客厅空调启动后不制冷，伴有异响', category: '家电维修', status: '1', time: '今天 10:15', worker: '张建国师傅 (已接单)' },
+  { id: 'WX20260528023', title: '厨房洗手盆底部软管开裂漏水', category: '管道疏通', status: '2', time: '05-28 14:30', worker: '刘向东师傅 (已修完毕)' }
+])
+
+const feedbackText = ref('')
+function submitFeedback() {
+  if (!feedbackText.value.trim()) {
+    ElMessage.warning('请输入您的建议后再进行提交！')
+    return
+  }
+  ElMessage.success('您的反馈已成功提交至物业经理信箱，感谢您参与共建和谐社区！')
+  feedbackText.value = ''
+}
+
+// ==================== 3. 维修工人 (Worker) 逻辑与模拟数据 ====================
+const workerStats = reactive({
+  todoJobs: 3,
+  doingJobs: 1,
+  completedJobs: 28,
+  rating: 4.9
+})
+
+const workerJobs = ref([
+  { id: 'WX20260602005', title: '卧室床头插座没电', address: '盛世嘉园 B区5栋803室', owner: '王女士', phone: '138****5678', time: '今天 11:20', priority: 'high', desc: '主卧大床进门右手边床头插座无输出电压，其余区域插座均正常，业主已自行检查电箱未见跳闸。' },
+  { id: 'WX20260602002', title: '卫生间地漏反水严重', address: '盛世嘉园 A区2栋401室', owner: '李先生', phone: '139****1234', time: '今天 09:40', priority: 'medium', desc: '淋浴区下水极其缓慢，水流稍大即反涌，带有明显臭味反溢，需携带管道疏通弹簧和疏通机前往。' },
+  { id: 'WX20260531012', title: '单元门禁磁力锁吸合不严', address: '盛世嘉园 A区4栋单元正门口', owner: '物业服务台提报', phone: '- -', time: '05-31 16:00', priority: 'low', desc: '4栋一单元正门口磁力锁由于长期碰撞吸附不严密，刷卡后绿灯亮但门无法自动弹开，偶尔处于常开状态。' }
+])
+
+const workerFeedbacks = ref([
+  { id: 1, owner: '陈大爷', room: 'A区1栋302室', content: '刘师傅干活真是太利索了！不仅快速修好了漏水的水龙头，还顺手帮我把旁边生锈的置物架螺丝也加固了，态度也特别客气，真心点赞！', rating: 5, date: '昨天' },
+  { id: 2, owner: '赵女士', room: 'C区3栋1201室', content: '进门非常自觉戴上了鞋套，服务态度极好。排查电路故障非常有经验，二十分钟换好开关就好了，非常专业放心！', rating: 5, date: '05-30' }
+])
+
+function handleJob(jobId, type) {
+  if (type === 'accept') {
+    ElMessage.success(`工单 [${jobId}] 接单成功！已更新至您正在维修中的工单，请及时联系业主约定上门时间。`)
+    workerStats.todoJobs--
+    workerStats.doingJobs++
+  } else {
+    ElMessage.success(`工单 [${jobId}] 已提报【维修完毕】！已进入业主确认评价阶段，辛苦了！`)
+    workerStats.doingJobs = Math.max(0, workerStats.doingJobs - 1)
+    workerStats.completedJobs++
+  }
+}
+
+function showClockIn() {
+  ElMessage.success('考勤打卡成功！今日打卡时间：' + new Date().toLocaleTimeString() + '，GPS定位：盛世嘉园小区，状态：在岗。')
+}
+
+// 业主自助预约访客 Dialog 数据与校验
+const visitorOpen = ref(false)
+const visitorFormRef = ref(null)
+const visitorForm = ref({
+  visitorName: '',
+  visitorPhone: '',
+  visitTime: '',
+  visitReason: '亲戚探访'
+})
+
+const visitorRules = {
+  visitorName: [{ required: true, message: '请输入访客姓名', trigger: 'blur' }],
+  visitorPhone: [
+    { required: true, message: '请输入手机号', trigger: 'blur' },
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的11位手机号', trigger: 'blur' }
+  ],
+  visitTime: [{ required: true, message: '请选择预约来访时间', trigger: 'change' }]
+}
+
+function openVisitorDialog() {
+  visitorForm.value = {
+    visitorName: '',
+    visitorPhone: '',
+    visitTime: '',
+    visitReason: '亲戚探访'
+  }
+  visitorOpen.value = true
+}
+
+async function submitVisitor() {
+  visitorFormRef.value.validate(async (valid) => {
+    if (valid) {
+      try {
+        if (hasBinding.value) {
+          // 如果当前是已绑定的真实用户，则调用业主自助门禁接口
+          const res = await request({
+            url: '/property/portal/visitor',
+            method: 'post',
+            data: {
+              visitorName: visitorForm.value.visitorName,
+              visitorPhone: visitorForm.value.visitorPhone,
+              visitTime: visitorForm.value.visitTime,
+              visitReason: visitorForm.value.visitReason,
+              visitStatus: '0' // 待审核
+            }
+          })
+          if (res.code === 200) {
+            ElMessage.success('您的访客预约登记成功！请通知访客在规定时间到达小区大门，物业将予以放行。')
+            ownerStats.visitorPasses++
+            visitorOpen.value = false
+          } else {
+            ElMessage.error(res.msg || '提交预约失败，请稍后重试')
+          }
+        } else {
+          // 未绑定的演示模式，直接纯前端模拟交互，以提供极速且高保真的演示效果！
+          ElMessage.success('【演示模式】您的访客预约登记成功！物业端访客管理列表已实时生成对应的待放行审核申请！')
+          ownerStats.visitorPasses++
+          visitorOpen.value = false
+        }
+      } catch (e) {
+        console.error('Submit visitor error:', e)
+        ElMessage.error('预约请求发送失败，请确保后端 Spring Boot 项目已启动')
+      }
+    }
+  })
+}
+
+// 房产模拟对应库，与后台业主ID一一对应
+const houseOptions = ref([
+  { ownerId: 100, community: '盛世嘉园', building: 'A区3栋', room: '1602室', ownerName: '张建国' },
+  { ownerId: 101, community: '盛世嘉园', building: 'A区2栋', room: '401室', ownerName: '李向东' },
+  { ownerId: 102, community: '盛世嘉园', building: 'B区5栋', room: '803室', ownerName: '王桂兰' },
+  { ownerId: 103, community: '盛世嘉园', building: 'C区1栋', room: '302室', ownerName: '陈大爷' },
+  { ownerId: 104, community: '盛世嘉园', building: 'C区3栋', room: '1201室', ownerName: '赵美华' },
+  { ownerId: 105, community: '半岛阳光', building: '1栋一单元', room: '501室', ownerName: '徐磊' },
+  { ownerId: 106, community: '半岛阳光', building: '3栋二单元', room: '903室', ownerName: '刘强' },
+  { ownerId: 107, community: '金陵名雅苑', building: '8栋', room: '601室', ownerName: '周小川' },
+  { ownerId: 108, community: '金陵名雅苑', building: '12栋', room: '1504室', ownerName: '马建华' }
+])
+
+async function checkBinding() {
+  if (isAdmin.value || isWorker.value) return
+  try {
+    const res = await request({ url: '/property/userOwner/check', method: 'get' })
+    if (res.code === 200 && res.data) {
+      const binding = res.data
+      hasBinding.value = true
+      ownerRealName.value = binding.ownerName || ''
+      // 匹配模拟数据中的房产名称
+      const match = houseOptions.value.find(h => h.ownerId === binding.ownerId)
+      if (match) {
+        ownerStats.roomName = `${match.community} ${match.building} ${match.room}`
+      } else {
+        ownerStats.roomName = binding.ownerName ? `已绑定业主：${binding.ownerName}` : '已绑定房产'
+      }
+    } else {
+      hasBinding.value = false
+    }
+  } catch (e) {
+    console.warn('获取业主房屋绑定信息失败，使用默认演示数据:', e)
+    hasBinding.value = false
+  }
+}
+
+async function loadOwnerNotices() {
+  try {
+    const res = await request({ url: '/property/portal/myNotice', method: 'get', params: { pageNum: 1, pageSize: 3 } })
+    if (res.code === 200 && res.rows && res.rows.length > 0) {
+      communityNotices.value = res.rows.map(item => {
+        return {
+          id: item.noticeId,
+          title: item.noticeTitle,
+          type: item.noticeType === '2' ? 'danger' : item.noticeType === '1' ? 'warning' : 'success',
+          time: formatTime(item.publishTime || item.createTime),
+          summary: item.noticeContent
+        }
+      })
+    }
+  } catch (e) {
+    console.warn('获取最新小区公告失败，使用默认演示数据:', e)
+  }
+}
+
+async function loadOwnerRepairs() {
+  try {
+    const res = await request({ url: '/property/portal/myRepair', method: 'get', params: { pageNum: 1, pageSize: 5 } })
+    if (res.code === 200 && res.rows && res.rows.length > 0) {
+      myRepairs.value = res.rows.map(item => {
+        return {
+          id: 'WX' + item.repairId,
+          title: item.repairTitle,
+          category: '日常报修',
+          status: item.repairStatus,
+          time: formatTime(item.createTime),
+          worker: item.workerName ? `${item.workerName}师傅` : '待指派'
+        }
+      })
+    }
+  } catch (e) {
+    console.warn('获取业主报修进度失败，使用默认演示数据:', e)
+  }
+}
+
+// 生命周期挂载
+onMounted(() => {
+  if (isAdmin.value) {
+    loadAdminData()
+    window.addEventListener('resize', handleResize)
+  } else {
+    checkBinding()
+    loadOwnerNotices()
+    loadOwnerRepairs()
+  }
+})
+
+onBeforeUnmount(() => {
+  if (isAdmin.value) {
+    window.removeEventListener('resize', handleResize)
+    repairChart && repairChart.dispose()
+    feeChart && feeChart.dispose()
+  }
+})
 </script>
 
 <style scoped lang="scss">
-.home {
-  blockquote {
-    padding: 10px 20px;
-    margin: 0 0 20px;
-    font-size: 17.5px;
-    border-left: 5px solid #eee;
-  }
-  hr {
-    margin-top: 20px;
-    margin-bottom: 20px;
-    border: 0;
-    border-top: 1px solid #eee;
-  }
-  .col-item {
-    margin-bottom: 20px;
-  }
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
-  ul {
-    padding: 0;
-    margin: 0;
-  }
+.dashboard-container {
+  padding: 20px 24px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f3ff 0%, #eef2ff 50%, #f0fdf4 100%);
+  font-family: 'Outfit', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
 
-  font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 13px;
-  color: #676a6c;
-  overflow-x: hidden;
+/* ===== 提示新用户的温馨通知栏 ===== */
+.guest-alert-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  background: rgba(255, 255, 255, 0.85);
+  border-left: 5px solid #7a22ff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(122, 34, 255, 0.08);
+  backdrop-filter: blur(10px);
+  margin-bottom: 20px;
+  animation-duration: 0.8s;
 
-  ul {
-    list-style-type: none;
-  }
+  .alert-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 
-  h4 {
-    margin-top: 0px;
-  }
+    .alert-sparkle {
+      font-size: 18px;
+    }
+    .alert-text {
+      font-size: 14px;
+      color: #4b5563;
+      line-height: 1.5;
 
-  h2 {
-    margin-top: 10px;
-    font-size: 26px;
-    font-weight: 100;
-  }
-
-  p {
-    margin-top: 10px;
-
-    b {
-      font-weight: 700;
+      strong {
+        color: #7a22ff;
+      }
     }
   }
 
-  .update-log {
-    ol {
-      display: block;
-      list-style-type: decimal;
-      margin-block-start: 1em;
-      margin-block-end: 1em;
-      margin-inline-start: 0;
-      margin-inline-end: 0;
-      padding-inline-start: 40px;
+  .alert-btn {
+    background: linear-gradient(135deg, #7a22ff, #5b2dff);
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+
+    &:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
     }
   }
 }
-</style>
 
+/* ===== 欢迎横幅 ===== */
+.welcome-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 36px;
+  margin-bottom: 24px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #7a22ff 0%, #5b2dff 40%, #3b82f6 100%);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(122, 34, 255, 0.25);
+
+  &.owner-banner {
+    background: linear-gradient(135deg, #10b981 0%, #059669 40%, #2563eb 100%);
+    box-shadow: 0 8px 32px rgba(16, 185, 129, 0.2);
+  }
+
+  &.worker-banner {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 40%, #a855f7 100%);
+    box-shadow: 0 8px 32px rgba(37, 99, 235, 0.2);
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: 20%;
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0, 229, 255, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+}
+
+.welcome-left {
+  position: relative;
+  z-index: 1;
+}
+
+.welcome-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 6px 0;
+  letter-spacing: 0.5px;
+}
+
+.greeting-icon {
+  margin-right: 4px;
+}
+
+.welcome-date {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0;
+
+  strong {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-left: 2px;
+  }
+}
+
+.welcome-actions {
+  display: flex;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.action-btn {
+  background: rgba(255, 255, 255, 0.18) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  color: #fff !important;
+  border-radius: 12px !important;
+  padding: 10px 20px !important;
+  font-size: 14px !important;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  }
+}
+
+/* ===== KPI 卡片 ===== */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.kpi-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 24px 28px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.kpi-decoration {
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  opacity: 0.08;
+}
+
+.kpi-purple {
+  .kpi-icon-wrap { background: linear-gradient(135deg, #7a22ff, #a855f7); }
+  .kpi-decoration { background: #7a22ff; }
+}
+.kpi-teal {
+  .kpi-icon-wrap { background: linear-gradient(135deg, #14b8a6, #2dd4bf); }
+  .kpi-decoration { background: #14b8a6; }
+}
+.kpi-amber {
+  .kpi-icon-wrap { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+  .kpi-decoration { background: #f59e0b; }
+}
+.kpi-rose {
+  .kpi-icon-wrap { background: linear-gradient(135deg, #f43f5e, #fb7185); }
+  .kpi-decoration { background: #f43f5e; }
+}
+
+.kpi-icon-wrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 26px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.kpi-info {
+  margin-left: 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+.kpi-value {
+  font-size: 30px;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+}
+
+.kpi-label {
+  font-size: 13px;
+  color: #94a3b8;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* ===== 图表与两栏通用结构 ===== */
+.chart-row {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.chart-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 0;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.title-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.dot-blue { background: linear-gradient(135deg, #7a22ff, #3b82f6); }
+.dot-green { background: linear-gradient(135deg, #22c55e, #14b8a6); }
+.dot-orange { background: linear-gradient(135deg, #f59e0b, #f43f5e); }
+.dot-purple { background: linear-gradient(135deg, #8b5cf6, #7a22ff); }
+
+.chart-body {
+  width: 100%;
+  height: 320px;
+  padding: 10px 14px 14px;
+}
+
+.view-all-btn {
+  font-size: 13px !important;
+  font-weight: 500;
+}
+
+/* ===== 社区公告栏 ===== */
+.notice-board {
+  .notice-list {
+    padding: 15px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: 320px;
+    overflow-y: auto;
+  }
+
+  .notice-item {
+    padding: 16px 20px;
+    background: #f8fafc;
+    border-radius: 14px;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      border-left-color: #3b82f6;
+      background: #f1f5f9;
+    }
+  }
+
+  .notice-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+
+    .notice-tag {
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 6px;
+    }
+
+    .notice-title-text {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1e293b;
+      margin: 0;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .notice-time {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+  }
+
+  .notice-summary {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+/* ===== 24小时管家服务 / 生活助手 ===== */
+.assistant-card {
+  .assistant-body {
+    padding: 20px 24px;
+    height: 320px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .weather-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+    color: #0369a1;
+
+    .weather-temp {
+      font-size: 32px;
+      font-weight: 700;
+      display: block;
+      line-height: 1;
+    }
+
+    .weather-text {
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 4px;
+      display: block;
+    }
+
+    .weather-right {
+      text-align: right;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+  }
+
+  .service-contacts {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 14px 0;
+
+    .contact-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+
+      .contact-label {
+        color: #64748b;
+        font-weight: 500;
+      }
+
+      .contact-value {
+        color: #1e293b;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .service-tips {
+    display: flex;
+    gap: 10px;
+    padding: 10px 14px;
+    background: #fffbeb;
+    border: 1px solid #fef3c7;
+    border-radius: 10px;
+
+    .tip-icon {
+      font-size: 16px;
+    }
+
+    .tip-text {
+      font-size: 12px;
+      color: #b45309;
+      margin: 0;
+      line-height: 1.4;
+    }
+  }
+}
+
+/* ===== 工人安全卡片风格 ===== */
+.worker-tip-card {
+  padding: 16px 20px;
+  border-radius: 14px;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+
+  h4 {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  &.red-warning {
+    background: #fef2f2;
+    border: 1px solid #fee2e2;
+    h4 { color: #ef4444; }
+    p { color: #b91c1c; }
+  }
+
+  &.info-card {
+    background: #f0fdfa;
+    border: 1px solid #ccfbf1;
+    h4 { color: #0d9488; }
+    p { color: #0f766e; }
+  }
+}
+
+/* ===== 列表与底部通用结构 ===== */
+.list-row {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.list-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.table-wrap {
+  padding: 12px 24px 20px;
+}
+
+:deep(.el-table) {
+  --el-table-border-color: #f1f5f9;
+  border-radius: 12px;
+  overflow: hidden;
+}
+:deep(.el-table th.el-table__cell) {
+  font-size: 13px;
+}
+:deep(.el-table td.el-table__cell) {
+  font-size: 13px;
+  padding: 10px 0;
+}
+
+/* ===== 业主快捷反馈卡片 ===== */
+.feedback-card {
+  .feedback-body {
+    padding: 20px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .feedback-intro {
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .feedback-input {
+    :deep(.el-textarea__inner) {
+      border-radius: 12px;
+      background-color: #f8fafc;
+      padding: 12px;
+      font-size: 13px;
+      border-color: #e2e8f0;
+
+      &:focus {
+        background-color: #fff;
+        border-color: #7a22ff;
+      }
+    }
+  }
+
+  .feedback-submit-btn {
+    background: linear-gradient(135deg, #7a22ff, #5b2dff);
+    border: none;
+    border-radius: 10px;
+    font-weight: 500;
+    padding: 12px 0;
+    transition: all 0.3s ease;
+
+    &:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+    }
+  }
+}
+
+/* ===== 待办工单与工人专属样式 ===== */
+.worker-job-list {
+  padding: 15px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 320px;
+  overflow-y: auto;
+
+  .job-item-card {
+    background: #f8fafc;
+    border-radius: 14px;
+    padding: 18px 20px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      border-color: #3b82f6;
+      background: #fff;
+    }
+  }
+
+  .job-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+
+    .job-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .job-id {
+        font-size: 13px;
+        font-weight: 700;
+        color: #3b82f6;
+        background: rgba(59, 130, 246, 0.1);
+        padding: 2px 8px;
+        border-radius: 6px;
+      }
+
+      .job-time {
+        font-size: 12px;
+        color: #94a3b8;
+      }
+    }
+  }
+
+  .job-item-body {
+    .job-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1e293b;
+      margin: 0 0 10px 0;
+    }
+
+    .job-info-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 8px;
+
+      p {
+        font-size: 13px;
+        color: #475569;
+        margin: 0;
+      }
+    }
+
+    .job-desc {
+      font-size: 13px;
+      color: #64748b;
+      margin: 0;
+      background: #f1f5f9;
+      padding: 8px 12px;
+      border-radius: 8px;
+      line-height: 1.4;
+    }
+  }
+
+  .job-item-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 14px;
+
+    .job-action-btn {
+      border-radius: 8px;
+      font-size: 13px;
+      padding: 8px 16px;
+    }
+  }
+}
+
+/* ===== 工人接收到的最新业主评价 ===== */
+.feedback-list {
+  padding: 15px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .feedback-item {
+    padding: 16px 18px;
+    background: #f8fafc;
+    border-radius: 12px;
+    border-left: 4px solid #14b8a6;
+
+    .feedback-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+
+      .fb-owner-name {
+        font-weight: 600;
+        font-size: 14px;
+        color: #1e293b;
+      }
+
+      .fb-owner-room {
+        font-size: 12px;
+        color: #64748b;
+        margin-left: 4px;
+      }
+
+      .fb-rating {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+
+        .star {
+          color: #fbbf24;
+          font-size: 14px;
+        }
+
+        .fb-date {
+          font-size: 12px;
+          color: #94a3b8;
+          margin-left: 8px;
+        }
+      }
+    }
+
+    .fb-content {
+      margin: 0;
+      font-size: 13px;
+      color: #475569;
+      line-height: 1.5;
+      font-style: italic;
+    }
+  }
+}
+
+/* ===== 待办事项 ===== */
+.todo-list {
+  padding: 8px 20px 20px;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin-bottom: 6px;
+
+  &:hover {
+    background: #f8fafc;
+    transform: translateX(4px);
+  }
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.todo-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.todo-icon-red { background: #fef2f2; color: #ef4444; }
+.todo-icon-blue { background: #eff6ff; color: #3b82f6; }
+.todo-icon-orange { background: #fff7ed; color: #f97316; }
+.todo-icon-teal { background: #f0fdfa; color: #14b8a6; }
+.todo-icon-amber { background: #fffbeb; color: #f59e0b; }
+
+.todo-info {
+  margin-left: 14px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.todo-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.todo-desc {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.todo-count {
+  font-size: 20px;
+  font-weight: 700;
+  min-width: 32px;
+  text-align: center;
+}
+
+.todo-count-red { color: #ef4444; }
+.todo-count-blue { color: #3b82f6; }
+.todo-count-orange { color: #f97316; }
+.todo-count-teal { color: #14b8a6; }
+.todo-count-amber { color: #f59e0b; }
+
+/* ===== 响应式布局 ===== */
+@media (max-width: 1200px) {
+  .kpi-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .chart-row,
+  .list-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 12px;
+  }
+  .welcome-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+    gap: 16px;
+  }
+  .welcome-actions {
+    flex-wrap: wrap;
+  }
+  .kpi-row {
+    grid-template-columns: 1fr;
+  }
+  .kpi-card {
+    padding: 18px 22px;
+  }
+}
+</style>

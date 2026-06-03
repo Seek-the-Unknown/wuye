@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.property.mapper.PmsComplaintMapper">
+
+    <resultMap type="PmsComplaint" id="PmsComplaintResult">
+        <result property="complaintId"     column="complaint_id"     />
+        <result property="communityId"     column="community_id"     />
+        <result property="ownerId"         column="owner_id"         />
+        <result property="complaintType"   column="complaint_type"   />
+        <result property="complaintTitle"  column="complaint_title"  />
+        <result property="complaintContent" column="complaint_content" />
+        <result property="handleStatus"    column="handle_status"    />
+        <result property="handleResult"    column="handle_result"    />
+        <result property="handleBy"        column="handle_by"        />
+        <result property="handleTime"      column="handle_time"      />
+        <result property="createBy"        column="create_by"        />
+        <result property="createTime"      column="create_time"      />
+        <result property="updateBy"        column="update_by"        />
+        <result property="updateTime"      column="update_time"      />
+        <result property="communityName"   column="community_name"   />
+        <result property="ownerName"       column="owner_name"       />
+    </resultMap>
+
+    <sql id="selectPmsComplaintVo">
+        select c.complaint_id, c.community_id, c.owner_id, c.complaint_type, c.complaint_title, c.complaint_content,
+               c.handle_status, c.handle_result, c.handle_by, c.handle_time, c.create_by, c.create_time, c.update_by, c.update_time,
+               com.community_name, o.owner_name
+        from pms_complaint c
+        left join pms_community com on c.community_id = com.community_id
+        left join pms_owner o on c.owner_id = o.owner_id
+    </sql>
+
+    <select id="selectPmsComplaintList" parameterType="PmsComplaint" resultMap="PmsComplaintResult">
+        <include refid="selectPmsComplaintVo"/>
+        <where>
+            <if test="communityId != null">and c.community_id = #{communityId}</if>
+            <if test="ownerId != null">and c.owner_id = #{ownerId}</if>
+            <if test="complaintType != null and complaintType != ''">and c.complaint_type = #{complaintType}</if>
+            <if test="handleStatus != null and handleStatus != ''">and c.handle_status = #{handleStatus}</if>
+            <if test="complaintTitle != null and complaintTitle != ''">and c.complaint_title like concat('%', #{complaintTitle}, '%')</if>
+        </where>
+        order by c.create_time desc
+    </select>
+
+    <select id="selectPmsComplaintByComplaintId" parameterType="Long" resultMap="PmsComplaintResult">
+        <include refid="selectPmsComplaintVo"/>
+        where c.complaint_id = #{complaintId}
+    </select>
+
+    <insert id="insertPmsComplaint" parameterType="PmsComplaint" useGeneratedKeys="true" keyProperty="complaintId">
+        insert into pms_complaint
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="communityId != null">community_id,</if>
+            <if test="ownerId != null">owner_id,</if>
+            <if test="complaintType != null and complaintType != ''">complaint_type,</if>
+            <if test="complaintTitle != null and complaintTitle != ''">complaint_title,</if>
+            <if test="complaintContent != null">complaint_content,</if>
+            <if test="handleStatus != null">handle_status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="communityId != null">#{communityId},</if>
+            <if test="ownerId != null">#{ownerId},</if>
+            <if test="complaintType != null and complaintType != ''">#{complaintType},</if>
+            <if test="complaintTitle != null and complaintTitle != ''">#{complaintTitle},</if>
+            <if test="complaintContent != null">#{complaintContent},</if>
+            <if test="handleStatus != null">#{handleStatus},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updatePmsComplaint" parameterType="PmsComplaint">
+        update pms_complaint
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="handleStatus != null">handle_status = #{handleStatus},</if>
+            <if test="handleResult != null">handle_result = #{handleResult},</if>
+            <if test="handleBy != null">handle_by = #{handleBy},</if>
+            <if test="handleTime != null">handle_time = #{handleTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where complaint_id = #{complaintId}
+    </update>
+
+    <delete id="deletePmsComplaintByComplaintId" parameterType="Long">
+        delete from pms_complaint where complaint_id = #{complaintId}
+    </delete>
+
+    <delete id="deletePmsComplaintByComplaintIds" parameterType="String">
+        delete from pms_complaint where complaint_id in
+        <foreach item="complaintId" collection="array" open="(" separator="," close=")">
+            #{complaintId}
+        </foreach>
+    </delete>
+</mapper>

@@ -154,6 +154,15 @@ public class PermissionService
      */
     private boolean hasPermissions(Set<String> permissions, String permission)
     {
-        return permissions.contains(Constants.ALL_PERMISSION) || permissions.contains(StringUtils.trim(permission));
+        if (permissions.contains(Constants.ALL_PERMISSION) || permissions.contains(StringUtils.trim(permission)))
+        {
+            return true;
+        }
+        // 特殊处理：物业管理员拥有所有以 property: 开头的物业模块管理权限
+        if (permission != null && permission.trim().startsWith("property:") && hasRole("property_admin"))
+        {
+            return true;
+        }
+        return false;
     }
 }

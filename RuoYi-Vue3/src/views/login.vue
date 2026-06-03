@@ -1,64 +1,164 @@
 <template>
-  <div class="login">
-    <el-form ref="loginRef" :model="loginForm" :rules="loginRules" class="login-form">
-      <h3 class="title">{{ title }}</h3>
-      <el-form-item prop="username">
-        <el-input
-          v-model="loginForm.username"
-          type="text"
-          size="large"
-          auto-complete="off"
-          placeholder="账号"
-        >
-          <template #prefix><svg-icon icon-class="user" class="el-input__icon input-icon" /></template>
-        </el-input>
-      </el-form-item>
-      <el-form-item prop="password">
-        <el-input
-          v-model="loginForm.password"
-          type="password"
-          size="large"
-          auto-complete="off"
-          placeholder="密码"
-          @keyup.enter="handleLogin"
-        >
-          <template #prefix><svg-icon icon-class="password" class="el-input__icon input-icon" /></template>
-        </el-input>
-      </el-form-item>
-      <el-form-item prop="code" v-if="captchaEnabled">
-        <el-input
-          v-model="loginForm.code"
-          size="large"
-          auto-complete="off"
-          placeholder="验证码"
-          style="width: 63%"
-          @keyup.enter="handleLogin"
-        >
-          <template #prefix><svg-icon icon-class="validCode" class="el-input__icon input-icon" /></template>
-        </el-input>
-        <div class="login-code">
-          <img :src="codeUrl" @click="getCode" class="login-code-img"/>
+  <div class="google-auth-container">
+    <!-- Stunning Ambient Shifting Nebula Spheres -->
+    <div class="glow-sphere sphere-1"></div>
+    <div class="glow-sphere sphere-2"></div>
+    <div class="glow-sphere sphere-3"></div>
+    <div class="glow-sphere sphere-4"></div>
+
+    <!-- Twinkling Floating Cosmic Particles -->
+    <div class="particle-container">
+      <div class="particle" style="left: 8%; animation-duration: 9s; animation-delay: 0s;"></div>
+      <div class="particle" style="left: 18%; animation-duration: 13s; animation-delay: 1.2s;"></div>
+      <div class="particle" style="left: 32%; animation-duration: 11s; animation-delay: 0.5s;"></div>
+      <div class="particle" style="left: 48%; animation-duration: 15s; animation-delay: 2s;"></div>
+      <div class="particle" style="left: 62%; animation-duration: 10s; animation-delay: 0.8s;"></div>
+      <div class="particle" style="left: 78%; animation-duration: 14s; animation-delay: 2.5s;"></div>
+      <div class="particle" style="left: 88%; animation-duration: 12s; animation-delay: 0.3s;"></div>
+      <div class="particle" style="left: 14%; animation-duration: 16s; animation-delay: 3.5s;"></div>
+      <div class="particle" style="left: 44%; animation-duration: 11s; animation-delay: 3s;"></div>
+      <div class="particle" style="left: 74%; animation-duration: 13s; animation-delay: 1.8s;"></div>
+    </div>
+
+    <div class="google-auth-box">
+      <!-- Left Pane: Branding & Welcome (Gemini Premium design) -->
+      <div class="brand-section">
+        <div class="brand-logo-container">
+          <!-- Elegant abstract sparkle logo using inline SVG with twinkling IDs -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="brand-logo-svg">
+            <defs>
+              <linearGradient id="geminiSparkleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#7a22ff" />
+                <stop offset="50%" stop-color="#ff007a" />
+                <stop offset="100%" stop-color="#00e5ff" />
+              </linearGradient>
+            </defs>
+            <path id="sparkle-main" fill="url(#geminiSparkleGrad)" d="M12 2c.4 3.7 3.3 6.6 7 7-3.7.4-6.6 3.3-7 7-.4-3.7-3.3-6.6-7-7 3.7-.4 6.6-3.3 7-7z"/>
+            <path id="sparkle-sub1" fill="url(#geminiSparkleGrad)" opacity="0.8" d="M19 14c.2 1.8 1.6 3.2 3.5 3.4-1.8.2-3.2 1.6-3.4 3.5-.2-1.8-1.6-3.2-3.5-3.4 1.8-.2 3.2-1.6 3.4-3.5z"/>
+            <path id="sparkle-sub2" fill="url(#geminiSparkleGrad)" opacity="0.6" d="M5 4c.1 1 .9 1.8 2 1.9-1 .1-1.8.9-1.9 2C5 7 4.2 6.2 3.1 6.1 4.2 6 5 5.2 5 4z"/>
+          </svg>
+          <span class="system-badge">Property System</span>
         </div>
-      </el-form-item>
-      <el-checkbox v-model="loginForm.rememberMe" style="margin:0px 0px 25px 0px;">记住密码</el-checkbox>
-      <el-form-item style="width:100%;">
-        <el-button
-          :loading="loading"
-          size="large"
-          type="primary"
-          style="width:100%;"
-          @click.prevent="handleLogin"
-        >
-          <span v-if="!loading">登 录</span>
-          <span v-else>登 录 中...</span>
-        </el-button>
-        <div style="float: right;" v-if="register">
-          <router-link class="link-type" :to="'/register'">立即注册</router-link>
+        <h1 class="brand-title">{{ title }}</h1>
+        <p class="brand-desc">
+          智慧社区物管服务平台，为您提供智能、高效、安心的一站式社区数字化物管与沟通服务。
+        </p>
+        <div class="brand-features">
+          <div class="feature-item">
+            <svg class="feature-svg-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            <span>多角色协同管理（管理员与业主）</span>
+          </div>
+          <div class="feature-item">
+            <svg class="feature-svg-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+            </svg>
+            <span>数据加密传输，安全隐私保障</span>
+          </div>
+          <div class="feature-item">
+            <svg class="feature-svg-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+            </svg>
+            <span>报修、账单与投诉在线流转</span>
+          </div>
         </div>
-      </el-form-item>
-    </el-form>
-    <!--  底部  -->
-    <div class="el-login-footer">
+      </div>
+
+      <!-- Divider Line -->
+      <div class="auth-divider"></div>
+
+      <!-- Right Pane: Form Card -->
+      <div class="form-section">
+        <!-- Mobile Header (Visible only on mobile/tablet screens) -->
+        <div class="mobile-header">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="brand-logo-svg">
+            <path id="sparkle-main-mobile" fill="url(#geminiSparkleGrad)" d="M12 2c.4 3.7 3.3 6.6 7 7-3.7.4-6.6 3.3-7 7-.4-3.7-3.3-6.6-7-7 3.7-.4 6.6-3.3 7-7z"/>
+            <path id="sparkle-sub1-mobile" fill="url(#geminiSparkleGrad)" opacity="0.8" d="M19 14c.2 1.8 1.6 3.2 3.5 3.4-1.8.2-3.2 1.6-3.4 3.5-.2-1.8-1.6-3.2-3.5-3.4 1.8-.2 3.2-1.6 3.4-3.5z"/>
+            <path id="sparkle-sub2-mobile" fill="url(#geminiSparkleGrad)" opacity="0.6" d="M5 4c.1 1 .9 1.8 2 1.9-1 .1-1.8.9-1.9 2C5 7 4.2 6.2 3.1 6.1 4.2 6 5 5.2 5 4z"/>
+          </svg>
+          <h2 class="mobile-title">{{ title }}</h2>
+          <p class="mobile-desc">账号登录</p>
+        </div>
+
+        <el-form ref="loginRef" :model="loginForm" :rules="loginRules" class="login-form">
+          <el-form-item prop="username" class="google-form-item">
+            <div class="google-input-wrapper" :class="{ 'is-focused': focusField === 'username', 'has-value': loginForm.username }">
+              <span class="input-label">账号</span>
+              <el-input
+                v-model="loginForm.username"
+                type="text"
+                size="large"
+                auto-complete="off"
+                placeholder="请输入您的账号"
+                @focus="focusField = 'username'"
+                @blur="focusField = ''"
+              />
+            </div>
+          </el-form-item>
+
+          <el-form-item prop="password" class="google-form-item">
+            <div class="google-input-wrapper" :class="{ 'is-focused': focusField === 'password', 'has-value': loginForm.password }">
+              <span class="input-label">密码</span>
+              <el-input
+                v-model="loginForm.password"
+                type="password"
+                size="large"
+                auto-complete="off"
+                placeholder="请输入密码"
+                show-password
+                @focus="focusField = 'password'"
+                @blur="focusField = ''"
+                @keyup.enter="handleLogin"
+              />
+            </div>
+          </el-form-item>
+
+          <el-form-item prop="code" v-if="captchaEnabled" class="google-form-item captcha-item">
+            <div class="google-input-wrapper" style="flex: 1;" :class="{ 'is-focused': focusField === 'code', 'has-value': loginForm.code }">
+              <span class="input-label">验证码</span>
+              <el-input
+                v-model="loginForm.code"
+                size="large"
+                auto-complete="off"
+                placeholder="验证码"
+                @focus="focusField = 'code'"
+                @blur="focusField = ''"
+                @keyup.enter="handleLogin"
+              />
+            </div>
+            <div class="login-code">
+              <img :src="codeUrl" @click="getCode" class="login-code-img" title="点击刷新验证码"/>
+            </div>
+          </el-form-item>
+
+          <div class="form-options">
+            <el-checkbox v-model="loginForm.rememberMe">记住密码</el-checkbox>
+            <a href="#" class="forgot-link">忘记密码？</a>
+          </div>
+
+          <el-form-item class="action-item">
+            <el-button
+              :loading="loading"
+              type="primary"
+              class="google-btn"
+              @click.prevent="handleLogin"
+            >
+              <span v-if="!loading">登录</span>
+              <span v-else>登录中...</span>
+            </el-button>
+          </el-form-item>
+
+          <div class="form-footer" v-if="register">
+            <span>还没有账号？</span>
+            <router-link class="register-link" :to="'/register'">立即注册</router-link>
+          </div>
+        </el-form>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="google-footer">
       <span>{{ footerContent }}</span>
     </div>
   </div>
@@ -78,6 +178,8 @@ const route = useRoute()
 const router = useRouter()
 const { proxy } = getCurrentInstance()
 
+const focusField = ref("")
+
 const loginForm = ref({
   username: "admin",
   password: "admin123",
@@ -94,9 +196,7 @@ const loginRules = {
 
 const codeUrl = ref("")
 const loading = ref(false)
-// 验证码开关
 const captchaEnabled = ref(true)
-// 注册开关
 const register = ref(true)
 const redirect = ref(undefined)
 
@@ -108,18 +208,15 @@ function handleLogin() {
   proxy.$refs.loginRef.validate(valid => {
     if (valid) {
       loading.value = true
-      // 勾选了需要记住密码设置在 cookie 中设置记住用户名和密码
       if (loginForm.value.rememberMe) {
         Cookies.set("username", loginForm.value.username, { expires: 30 })
         Cookies.set("password", encrypt(loginForm.value.password), { expires: 30 })
         Cookies.set("rememberMe", loginForm.value.rememberMe, { expires: 30 })
       } else {
-        // 否则移除
         Cookies.remove("username")
         Cookies.remove("password")
         Cookies.remove("rememberMe")
       }
-      // 调用action的登录方法
       userStore.login(loginForm.value).then(() => {
         const query = route.query
         const otherQueryParams = Object.keys(query).reduce((acc, cur) => {
@@ -131,7 +228,6 @@ function handleLogin() {
         router.push({ path: redirect.value || "/", query: otherQueryParams })
       }).catch(() => {
         loading.value = false
-        // 重新获取验证码
         if (captchaEnabled.value) {
           getCode()
         }
@@ -165,67 +261,6 @@ getCode()
 getCookie()
 </script>
 
-<style lang='scss' scoped>
-.login {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  background-image: url("../assets/images/login-background.jpg");
-  background-size: cover;
-}
-.title {
-  margin: 0px auto 30px auto;
-  text-align: center;
-  color: #707070;
-}
-
-.login-form {
-  border-radius: 6px;
-  background: #ffffff;
-  width: 400px;
-  padding: 25px 25px 5px 25px;
-  z-index: 1;
-  .el-input {
-    height: 40px;
-    input {
-      height: 40px;
-    }
-  }
-  .input-icon {
-    height: 39px;
-    width: 14px;
-    margin-left: 0px;
-  }
-}
-.login-tip {
-  font-size: 13px;
-  text-align: center;
-  color: #bfbfbf;
-}
-.login-code {
-  width: 33%;
-  height: 40px;
-  float: right;
-  img {
-    cursor: pointer;
-    vertical-align: middle;
-  }
-}
-.el-login-footer {
-  height: 40px;
-  line-height: 40px;
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  text-align: center;
-  color: #fff;
-  font-family: Arial;
-  font-size: 12px;
-  letter-spacing: 1px;
-}
-.login-code-img {
-  height: 40px;
-  padding-left: 12px;
-}
+<style lang="scss" scoped>
+@use "@/assets/styles/auth.scss";
 </style>

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.property.mapper.PmsFeeRecordMapper">
+
+    <resultMap type="PmsFeeRecord" id="PmsFeeRecordResult">
+        <result property="recordId"      column="record_id"      />
+        <result property="communityId"   column="community_id"   />
+        <result property="roomId"        column="room_id"        />
+        <result property="ownerId"       column="owner_id"       />
+        <result property="feeTypeId"     column="fee_type_id"    />
+        <result property="feeAmount"     column="fee_amount"     />
+        <result property="paidAmount"    column="paid_amount"    />
+        <result property="feeMonth"      column="fee_month"      />
+        <result property="payStatus"     column="pay_status"     />
+        <result property="payTime"       column="pay_time"       />
+        <result property="remark"        column="remark"         />
+        <result property="createBy"      column="create_by"      />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"      column="update_by"      />
+        <result property="updateTime"    column="update_time"    />
+        <!-- 关联字段 -->
+        <result property="communityName" column="community_name" />
+        <result property="roomName"      column="room_name"      />
+        <result property="ownerName"     column="owner_name"     />
+        <result property="typeName"      column="type_name"      />
+    </resultMap>
+
+    <sql id="selectPmsFeeRecordVo">
+        select r.record_id, r.community_id, r.room_id, r.owner_id, r.fee_type_id,
+               r.fee_amount, r.paid_amount, r.fee_month, r.pay_status, r.pay_time,
+               r.remark, r.create_by, r.create_time, r.update_by, r.update_time,
+               c.community_name, rm.room_name, o.owner_name, ft.type_name
+        from pms_fee_record r
+        left join pms_community c on r.community_id = c.community_id
+        left join pms_room rm on r.room_id = rm.room_id
+        left join pms_owner o on r.owner_id = o.owner_id
+        left join pms_fee_type ft on r.fee_type_id = ft.fee_type_id
+    </sql>
+
+    <select id="selectPmsFeeRecordList" parameterType="PmsFeeRecord" resultMap="PmsFeeRecordResult">
+        <include refid="selectPmsFeeRecordVo"/>
+        <where>
+            <if test="communityId != null">and r.community_id = #{communityId}</if>
+            <if test="ownerId != null">and r.owner_id = #{ownerId}</if>
+            <if test="feeTypeId != null">and r.fee_type_id = #{feeTypeId}</if>
+            <if test="feeMonth != null and feeMonth != ''">and r.fee_month = #{feeMonth}</if>
+            <if test="payStatus != null and payStatus != ''">and r.pay_status = #{payStatus}</if>
+        </where>
+        order by r.create_time desc
+    </select>
+
+    <select id="selectPmsFeeRecordByRecordId" parameterType="Long" resultMap="PmsFeeRecordResult">
+        <include refid="selectPmsFeeRecordVo"/>
+        where r.record_id = #{recordId}
+    </select>
+
+    <insert id="insertPmsFeeRecord" parameterType="PmsFeeRecord" useGeneratedKeys="true" keyProperty="recordId">
+        insert into pms_fee_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="communityId != null">community_id,</if>
+            <if test="roomId != null">room_id,</if>
+            <if test="ownerId != null">owner_id,</if>
+            <if test="feeTypeId != null">fee_type_id,</if>
+            <if test="feeAmount != null">fee_amount,</if>
+            <if test="paidAmount != null">paid_amount,</if>
+            <if test="feeMonth != null and feeMonth != ''">fee_month,</if>
+            <if test="payStatus != null">pay_status,</if>
+            <if test="payTime != null">pay_time,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="communityId != null">#{communityId},</if>
+            <if test="roomId != null">#{roomId},</if>
+            <if test="ownerId != null">#{ownerId},</if>
+            <if test="feeTypeId != null">#{feeTypeId},</if>
+            <if test="feeAmount != null">#{feeAmount},</if>
+            <if test="paidAmount != null">#{paidAmount},</if>
+            <if test="feeMonth != null and feeMonth != ''">#{feeMonth},</if>
+            <if test="payStatus != null">#{payStatus},</if>
+            <if test="payTime != null">#{payTime},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updatePmsFeeRecord" parameterType="PmsFeeRecord">
+        update pms_fee_record
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="communityId != null">community_id = #{communityId},</if>
+            <if test="roomId != null">room_id = #{roomId},</if>
+            <if test="ownerId != null">owner_id = #{ownerId},</if>
+            <if test="feeTypeId != null">fee_type_id = #{feeTypeId},</if>
+            <if test="feeAmount != null">fee_amount = #{feeAmount},</if>
+            <if test="paidAmount != null">paid_amount = #{paidAmount},</if>
+            <if test="feeMonth != null and feeMonth != ''">fee_month = #{feeMonth},</if>
+            <if test="payStatus != null">pay_status = #{payStatus},</if>
+            <if test="payTime != null">pay_time = #{payTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where record_id = #{recordId}
+    </update>
+
+    <delete id="deletePmsFeeRecordByRecordId" parameterType="Long">
+        delete from pms_fee_record where record_id = #{recordId}
+    </delete>
+
+    <delete id="deletePmsFeeRecordByRecordIds" parameterType="String">
+        delete from pms_fee_record where record_id in
+        <foreach item="recordId" collection="array" open="(" separator="," close=")">
+            #{recordId}
+        </foreach>
+    </delete>
+</mapper>

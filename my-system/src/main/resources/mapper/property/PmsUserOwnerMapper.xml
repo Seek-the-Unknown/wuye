@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.property.mapper.PmsUserOwnerMapper">
+
+    <resultMap type="PmsUserOwner" id="PmsUserOwnerResult">
+        <result property="id"       column="id"       />
+        <result property="userId"   column="user_id"  />
+        <result property="ownerId"  column="owner_id" />
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <!-- 关联展示 -->
+        <result property="userName"  column="user_name"  />
+        <result property="nickName"  column="nick_name"  />
+        <result property="ownerName" column="owner_name" />
+        <result property="phone"     column="phone"      />
+    </resultMap>
+
+    <sql id="selectPmsUserOwnerVo">
+        select uo.id, uo.user_id, uo.owner_id, uo.create_by, uo.create_time,
+               u.user_name, u.nick_name,
+               o.owner_name, o.phone
+        from pms_user_owner uo
+        left join sys_user u on uo.user_id = u.user_id
+        left join pms_owner o on uo.owner_id = o.owner_id
+    </sql>
+
+    <select id="selectByUserId" parameterType="Long" resultMap="PmsUserOwnerResult">
+        <include refid="selectPmsUserOwnerVo"/>
+        where uo.user_id = #{userId}
+    </select>
+
+    <select id="selectPmsUserOwnerById" parameterType="Long" resultMap="PmsUserOwnerResult">
+        <include refid="selectPmsUserOwnerVo"/>
+        where uo.id = #{id}
+    </select>
+
+    <select id="selectPmsUserOwnerList" parameterType="PmsUserOwner" resultMap="PmsUserOwnerResult">
+        <include refid="selectPmsUserOwnerVo"/>
+        <where>
+            <if test="userName != null and userName != ''"> and u.user_name like concat('%', #{userName}, '%')</if>
+            <if test="ownerName != null and ownerName != ''"> and o.owner_name like concat('%', #{ownerName}, '%')</if>
+        </where>
+    </select>
+
+    <insert id="insertPmsUserOwner" parameterType="PmsUserOwner" useGeneratedKeys="true" keyProperty="id">
+        insert into pms_user_owner
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="ownerId != null">owner_id,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="ownerId != null">#{ownerId},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updatePmsUserOwner" parameterType="PmsUserOwner">
+        update pms_user_owner
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="ownerId != null">owner_id = #{ownerId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deletePmsUserOwnerById" parameterType="Long">
+        delete from pms_user_owner where id = #{id}
+    </delete>
+</mapper>

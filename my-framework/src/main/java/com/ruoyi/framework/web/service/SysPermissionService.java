@@ -83,6 +83,31 @@ public class SysPermissionService
             {
                 perms.addAll(menuService.selectMenuPermsByUserId(user.getUserId()));
             }
+            
+            // 特殊处理：如果包含物业管理员角色，动态补全所有物业相关的操作权限字，防止因菜单表中缺失按钮菜单导致前端控制或后端拦截
+            boolean isPropertyAdmin = false;
+            if (!CollectionUtils.isEmpty(roles))
+            {
+                for (SysRole role : roles)
+                {
+                    if ("property_admin".equals(role.getRoleKey()))
+                    {
+                        isPropertyAdmin = true;
+                        break;
+                    }
+                }
+            }
+            if (isPropertyAdmin)
+            {
+                String[] modules = {"community", "building", "room", "owner", "repair", "userOwner", "complaint", "feeType", "feeRecord", "parking", "visitor", "notice"};
+                String[] actions = {"list", "query", "add", "edit", "remove", "export"};
+                for (String m : modules) {
+                    for (String a : actions) {
+                        perms.add("property:" + m + ":" + a);
+                    }
+                }
+                perms.add("property:dashboard:view");
+            }
         }
         return perms;
     }

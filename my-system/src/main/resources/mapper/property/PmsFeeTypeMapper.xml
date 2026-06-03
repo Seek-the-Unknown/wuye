@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.property.mapper.PmsFeeTypeMapper">
+
+    <resultMap type="PmsFeeType" id="PmsFeeTypeResult">
+        <result property="feeTypeId"   column="fee_type_id"   />
+        <result property="typeName"    column="type_name"     />
+        <result property="typeCode"    column="type_code"     />
+        <result property="unitPrice"   column="unit_price"    />
+        <result property="unit"        column="unit"          />
+        <result property="status"      column="status"        />
+        <result property="delFlag"     column="del_flag"      />
+        <result property="createBy"    column="create_by"     />
+        <result property="createTime"  column="create_time"   />
+        <result property="updateBy"    column="update_by"     />
+        <result property="updateTime"  column="update_time"   />
+        <result property="remark"      column="remark"        />
+    </resultMap>
+
+    <sql id="selectPmsFeeTypeVo">
+        select fee_type_id, type_name, type_code, unit_price, unit, status, del_flag, create_by, create_time, update_by, update_time, remark
+        from pms_fee_type
+    </sql>
+
+    <select id="selectPmsFeeTypeList" parameterType="PmsFeeType" resultMap="PmsFeeTypeResult">
+        <include refid="selectPmsFeeTypeVo"/>
+        <where>
+            and del_flag = '0'
+            <if test="typeName != null and typeName != ''"> and type_name like concat('%', #{typeName}, '%')</if>
+            <if test="typeCode != null and typeCode != ''"> and type_code like concat('%', #{typeCode}, '%')</if>
+            <if test="status != null and status != ''"> and status = #{status}</if>
+        </where>
+        order by fee_type_id
+    </select>
+
+    <select id="selectPmsFeeTypeByFeeTypeId" parameterType="Long" resultMap="PmsFeeTypeResult">
+        <include refid="selectPmsFeeTypeVo"/>
+        where fee_type_id = #{feeTypeId}
+    </select>
+
+    <insert id="insertPmsFeeType" parameterType="PmsFeeType" useGeneratedKeys="true" keyProperty="feeTypeId">
+        insert into pms_fee_type
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="typeName != null and typeName != ''">type_name,</if>
+            <if test="typeCode != null and typeCode != ''">type_code,</if>
+            <if test="unitPrice != null">unit_price,</if>
+            <if test="unit != null">unit,</if>
+            <if test="status != null">status,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="typeName != null and typeName != ''">#{typeName},</if>
+            <if test="typeCode != null and typeCode != ''">#{typeCode},</if>
+            <if test="unitPrice != null">#{unitPrice},</if>
+            <if test="unit != null">#{unit},</if>
+            <if test="status != null">#{status},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updatePmsFeeType" parameterType="PmsFeeType">
+        update pms_fee_type
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="typeName != null and typeName != ''">type_name = #{typeName},</if>
+            <if test="typeCode != null and typeCode != ''">type_code = #{typeCode},</if>
+            <if test="unitPrice != null">unit_price = #{unitPrice},</if>
+            <if test="unit != null">unit = #{unit},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where fee_type_id = #{feeTypeId}
+    </update>
+
+    <delete id="deletePmsFeeTypeByFeeTypeId" parameterType="Long">
+        update pms_fee_type set del_flag = '2' where fee_type_id = #{feeTypeId}
+    </delete>
+
+    <delete id="deletePmsFeeTypeByFeeTypeIds" parameterType="String">
+        update pms_fee_type set del_flag = '2' where fee_type_id in
+        <foreach item="feeTypeId" collection="array" open="(" separator="," close=")">
+            #{feeTypeId}
+        </foreach>
+    </delete>
+</mapper>

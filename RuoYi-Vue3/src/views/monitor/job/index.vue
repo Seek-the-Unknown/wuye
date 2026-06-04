@@ -166,7 +166,7 @@
                            <el-tooltip placement="top">
                               <template #content>
                                  <div>
-                                    Bean调用示例：ryTask.ryParams('ry')
+                                    Bean调用示例：wuyeTask.params('test')
                                     <br />Class类调用示例：com.wuye.quartz.task.WuyeTask.params('test')
                                     <br />参数说明：支持字符串，布尔类型，长整型，浮点型，整型
                                  </div>
@@ -500,4 +500,5 @@ function handleExport() {
 
 getList()
 </script>
+
 

@@ -1,4 +1,4 @@
-import { parseTime } from './ruoyi'
+﻿import { parseTime } from './ruoyi'
 
 /**
  * 表格时间格式化
@@ -388,3 +388,4 @@ export function isNumberStr(str) {
   return /^[+-]?(0|([1-9]\d*))(\.\d+)?$/g.test(str)
 }
  
+

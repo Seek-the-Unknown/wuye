@@ -1,6 +1,6 @@
-/**
+﻿/**
 * v-copyText 复制文本内容
-* Copyright (c) 2022 ruoyi
+* Copyright (c) 2022 wuye
 */
 export default {
   beforeMount(el, { value, arg }) {
@@ -63,3 +63,4 @@ function copyTextToClipboard(input, { target = document.body } = {}) {
 
   return isSuccess
 }
+

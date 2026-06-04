@@ -1,6 +1,6 @@
- /**
+﻿ /**
  * v-hasRole 角色权限处理
- * Copyright (c) 2019 ruoyi
+ * Copyright (c) 2019 wuye
  */
 import useUserStore from '@/store/modules/user'
 
@@ -25,3 +25,4 @@ export default {
     }
   }
 }
+

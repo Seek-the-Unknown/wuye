@@ -1,9 +1,9 @@
-@use './mixin.scss';
+﻿@use './mixin.scss';
 @use './transition.scss';
 @use './element-ui.scss';
 @use './sidebar.scss';
 @use './btn.scss';
-@use './ruoyi.scss';
+@use './wuye.scss';
 
 body {
   height: 100%;
@@ -177,3 +177,4 @@ aside {
     margin-bottom: 10px;
   }
 }
+

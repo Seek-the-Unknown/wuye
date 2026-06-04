@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="header-search">
     <svg-icon class-name="search-icon" icon-class="search" @click.stop="click" />
     <el-dialog
@@ -46,7 +46,7 @@
 
 <script setup>
 import Fuse from 'fuse.js'
-import { getNormalPath } from '@/utils/ruoyi'
+import { getNormalPath } from '@/utils/wuye'
 import { isHttp } from '@/utils/validate'
 import useSettingsStore from '@/store/modules/settings'
 import usePermissionStore from '@/store/modules/permission'
@@ -250,3 +250,4 @@ watch(searchPool, (list) => {
   }
 }
 </style>
+

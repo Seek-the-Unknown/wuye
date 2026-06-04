@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <el-form ref="genInfoForm" :model="info" :rules="rules" label-width="150px">
     <el-row>
       <el-col :span="12">
@@ -26,7 +26,7 @@
         <el-form-item prop="packageName">
           <template #label>
             生成包路径
-            <el-tooltip content="生成在哪个java包下，例如 com.ruoyi.system" placement="top">
+            <el-tooltip content="生成在哪个java包下，例如 com.wuye.system" placement="top">
               <el-icon><question-filled /></el-icon>
             </el-tooltip>
           </template>
@@ -303,3 +303,4 @@ watch(() => props.info.tplWebType, val => {
   }
 })
 </script>
+

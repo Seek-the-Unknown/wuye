@@ -1,6 +1,6 @@
-/**
+﻿/**
  * 通用js方法封装处理
- * Copyright (c) 2019 ruoyi
+ * Copyright (c) 2019 wuye
  */
 
 // 日期格式化
@@ -226,3 +226,4 @@ export function getNormalPath(p) {
 export function blobValidate(data) {
   return data.type !== 'application/json'
 }
+

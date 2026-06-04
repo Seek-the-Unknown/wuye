@@ -1,5 +1,5 @@
-import request from '@/utils/request'
-import { parseStrEmpty } from "@/utils/ruoyi";
+﻿import request from '@/utils/request'
+import { parseStrEmpty } from "@/utils/wuye";
 
 // 查询用户列表
 export function listUser(query) {
@@ -134,3 +134,4 @@ export function deptTreeSelect() {
     method: 'get'
   })
 }
+

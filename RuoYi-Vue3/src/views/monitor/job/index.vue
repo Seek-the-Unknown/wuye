@@ -1,4 +1,4 @@
-<template>
+﻿<template>
    <div class="app-container">
       <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
          <el-form-item label="任务名称" prop="jobName">
@@ -167,7 +167,7 @@
                               <template #content>
                                  <div>
                                     Bean调用示例：ryTask.ryParams('ry')
-                                    <br />Class类调用示例：com.ruoyi.quartz.task.RyTask.ryParams('ry')
+                                    <br />Class类调用示例：com.wuye.quartz.task.WuyeTask.params('test')
                                     <br />参数说明：支持字符串，布尔类型，长整型，浮点型，整型
                                  </div>
                               </template>
@@ -500,3 +500,4 @@ function handleExport() {
 
 getList()
 </script>
+

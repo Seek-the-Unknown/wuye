@@ -1,3 +1,5 @@
+package com.ruoyi.web.controller.property;
+
 import java.util.List;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;

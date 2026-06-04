@@ -65,6 +65,40 @@ public class PmsOwnerController extends BaseController
         util.exportExcel(response, list, "业主管理数据");
     }
 
+    @PostMapping("/importTemplate")
+    public void importTemplate(HttpServletResponse response)
+    {
+        ExcelUtil<PmsOwner> util = new ExcelUtil<PmsOwner>(PmsOwner.class);
+        util.importTemplateExcel(response, "业主数据");
+    }
+
+    @Log(title = "业主管理", businessType = BusinessType.IMPORT)
+    @PreAuthorize("@ss.hasPermi('property:owner:add')")
+    @PostMapping("/importData")
+    public AjaxResult importData(org.springframework.web.multipart.MultipartFile file, boolean updateSupport) throws Exception
+    {
+        ExcelUtil<PmsOwner> util = new ExcelUtil<PmsOwner>(PmsOwner.class);
+        List<PmsOwner> ownerList = util.importExcel(file.getInputStream());
+        int successNum = 0;
+        int failureNum = 0;
+        StringBuilder failureMsg = new StringBuilder();
+        for (PmsOwner owner : ownerList) {
+            try {
+                owner.setCreateBy(getUsername());
+                pmsOwnerService.insertPmsOwner(owner);
+                successNum++;
+            } catch (Exception e) {
+                failureNum++;
+                failureMsg.append("<br/>" + failureNum + "、业主 " + owner.getOwnerName() + " 导入失败");
+            }
+        }
+        if (failureNum > 0) {
+            failureMsg.insert(0, "很抱歉，导入失败！共 " + failureNum + " 条数据格式不正确，错误如下：");
+            throw new com.ruoyi.common.exception.ServiceException(failureMsg.toString());
+        }
+        return success("恭喜您，数据已全部导入成功！共 " + successNum + " 条");
+    }
+
     /**
      * 获取业主管理详细信息
      */

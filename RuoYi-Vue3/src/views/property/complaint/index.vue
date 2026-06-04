@@ -50,11 +50,8 @@
         </el-select>
       </el-form-item>
       <el-form-item label="处理状态" prop="handleStatus">
-        <el-select v-model="queryParams.handleStatus" placeholder="请选择" clearable style="width:120px">
-          <el-option label="待处理" value="0" />
-          <el-option label="处理中" value="1" />
-          <el-option label="已回复" value="2" />
-          <el-option label="已关闭" value="3" />
+        <el-select v-model="queryParams.handleStatus" placeholder="请选择处理状态" clearable style="width:120px">
+          <el-option v-for="dict in pms_complaint_status" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -76,9 +73,7 @@
       <el-table-column label="业主" align="center" prop="ownerName" width="100" />
       <el-table-column label="状态" align="center" prop="handleStatus" width="100">
         <template #default="scope">
-          <el-tag :type="scope.row.handleStatus === '0' ? 'danger' : scope.row.handleStatus === '1' ? 'warning' : scope.row.handleStatus === '2' ? 'success' : 'info'" effect="dark">
-            {{ scope.row.handleStatus === '0' ? '待处理' : scope.row.handleStatus === '1' ? '处理中' : scope.row.handleStatus === '2' ? '已回复' : '已关闭' }}
-          </el-tag>
+          <dict-tag :options="pms_complaint_status" :value="scope.row.handleStatus" />
         </template>
       </el-table-column>
       <el-table-column label="提交时间" align="center" prop="createTime" width="160">
@@ -128,6 +123,7 @@ import { listComplaint, getComplaint, delComplaint, addComplaint, updateComplain
 import request from '@/utils/request';
 
 const { proxy } = getCurrentInstance();
+const { pms_complaint_status } = proxy.useDict('pms_complaint_status');
 const list = ref([]);
 const open = ref(false);
 const loading = ref(true);

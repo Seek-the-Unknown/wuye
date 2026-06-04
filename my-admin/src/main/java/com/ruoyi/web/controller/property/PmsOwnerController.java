@@ -89,7 +89,13 @@ public class PmsOwnerController extends BaseController
                 successNum++;
             } catch (Exception e) {
                 failureNum++;
-                failureMsg.append("<br/>" + failureNum + "、业主 " + owner.getOwnerName() + " 导入失败");
+                String msg = "<br/>" + failureNum + "、业主 " + owner.getOwnerName() + " 导入失败：";
+                if (e.getCause() != null) {
+                    msg += e.getCause().getMessage();
+                } else {
+                    msg += e.getMessage();
+                }
+                failureMsg.append(msg);
             }
         }
         if (failureNum > 0) {

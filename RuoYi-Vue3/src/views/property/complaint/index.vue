@@ -101,9 +101,7 @@
       <el-form ref="formRef" :model="form" :rules="rules" label-width="90px">
         <el-form-item label="处理状态" prop="handleStatus">
           <el-radio-group v-model="form.handleStatus">
-            <el-radio label="1">处理中</el-radio>
-            <el-radio label="2">已回复</el-radio>
-            <el-radio label="3">已关闭</el-radio>
+            <el-radio v-for="dict in pms_complaint_status" :key="dict.value" :label="dict.value">{{ dict.label }}</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="处理结果" prop="handleResult">

@@ -83,3 +83,43 @@
   - **PmsOwner (业主表)**：保存业主真实资料库（张三的身份证号、手机号）。
   - **PmsHouse (房屋房间表)**：保存资产（例如 1栋2单元304室）。
 - **关系映射代码**：在 `PmsHouseMapper.xml` 或者对应的业务逻辑中，通过维护关系表 `pms_user_owner` 或者直接外键关联。业务层判断：某手机号注册的 `SysUser` -> 自动绑定同手机号的 `PmsOwner` -> 此 `PmsOwner` 对应的 `PmsHouse`，最终在业主端成功渲染出该业主的私有房产列表。
+
+---
+
+## 6. 【业务核心】业务模块字典的深度集成
+**功能描述**：满足“系统实现中至少有一个业务模块中体现字典的使用”的要求。在“投诉与建议管理”业务中，引入并使用字典动态管理其“处理状态”。
+
+### 代码实现位置：
+- **后端数据库层**：
+  - 在 `sys_dict_type` 和 `sys_dict_data` 表中插入了类型名为 `pms_complaint_status` 的字典数据（0-待处理, 1-处理中, 2-已回复, 3-已关闭）。
+- **前端视图层**：
+  - 文件：`RuoYi-Vue3/src/views/property/complaint/index.vue`
+  - 实现：使用 Vue 的 `const { pms_complaint_status } = proxy.useDict('pms_complaint_status')` 钩子获取字典数据。在列表表格中使用 `<dict-tag :options="pms_complaint_status" :value="scope.row.handleStatus" />` 组件进行数据动态回显；在表单下拉框中使用 `<el-option v-for="dict in pms_complaint_status" :label="dict.label" :value="dict.value" />` 进行动态绑定。
+
+---
+
+## 7. 【数据流转】自实现的业主数据 Excel 导入与解析
+**功能描述**：满足“至少有一个业务模块中包含自实现的导出、导入功能”的要求。在“业主管理”模块中，实现了贴合业务逻辑的自实现 Excel 模板下载与数据导入解析功能。
+
+### 代码实现位置：
+- **前端交互层**：
+  - 文件：`RuoYi-Vue3/src/views/property/owner/index.vue`
+  - 实现：通过 `<el-upload>` 组件编写了弹窗式的拖拽文件上传模块，并添加了 `importTemplate()` 模板下载请求接口，以及 `handleFileUploadProgress` 文件流传输回调逻辑。
+- **后端解析与入库层 (Controller)**：
+  - 文件：`my-admin/src/main/java/com/ruoyi/web/controller/property/PmsOwnerController.java`
+  - 实现：独立手写了 `importData()` 接口方法。通过 `ExcelUtil` 工具类将前端传入的 `MultipartFile` 文件流反序列化为 `List<PmsOwner>` 集合。然后在代码中使用 `for` 循环手动对数据进行遍历，最后调用 `ownerMapper.insertPmsOwner()` 批量落库。如果发生异常（如由于身份证号过长导致数据库报错），利用 `try-catch` 捕获并将底层具体报错原因拼接返回给前端（例如：“业主 张兰兰 导入失败：Data truncation: Data too long for column 'id_card'”）。
+
+---
+
+## 8. 【角色体系】两类角色隔离体系与普通用户自助注册
+**功能描述**：满足“至少包含管理员和普通用户两类角色，且支持普通用户的自注册”的要求。系统不仅内置了后台管理员和物业员工等角色，还彻底打通了外部普通住户（业主）的开放式自助注册入口。
+
+### 代码实现位置：
+- **底层基础配置放行**：
+  - 表数据配置：直接深入到系统的 `sys_config` 参数配置表中，将键值为 `sys.account.registerUser` 的配置项显式修改并激活为 `true`。
+- **前端注册视图与接口路由**：
+  - 文件：`RuoYi-Vue3/src/views/register.vue` 及其对应的路由 `src/router/index.js`。
+  - 实现：在前端检测到注册功能开启后，极简炫酷的登录页面自动暴露出“立即注册”入口。普通外部用户填写用户名、密码后，直接调用 `register()` 接口。
+- **注册业务逻辑流转 (Service)**：
+  - 文件：`my-framework/src/main/java/com/ruoyi/framework/web/service/SysRegisterService.java`
+  - 实现：用户注册成功后，系统会在 `sys_user` 表自动为其创建基础账号，赋予“普通用户”的初始权限。随后，根据其填写的真实信息（或后续通过物业后台绑定），与 `PmsOwner` 和 `PmsHouse` 数据挂钩，从而实现内部管理员（拥有全局系统路由）和外部普通用户（仅拥有业主个人前台权限）的角色完全隔离。

@@ -69,18 +69,15 @@ public class PmsVehicleRecordController extends BaseController {
     @PreAuthorize("@ss.hasPermi('property:vehicleRecord:enter')")
     @Log(title = "车辆入场识别", businessType = BusinessType.INSERT)
     @PostMapping("/enter")
-    public AjaxResult enter(
-        @RequestParam(value = "file", required = false) MultipartFile file,
-        @RequestParam(value = "communityId", required = false) Long communityId,
-        @RequestParam(value = "parkingId", required = false) Long parkingId,
-        @RequestParam(value = "plateNumber", required = false) String plateNumber) {
-        // 必须提供文件或手动输入车牌号
-        boolean hasFile = file != null && !file.isEmpty();
-        boolean hasPlate = plateNumber != null && !plateNumber.trim().isEmpty();
-        if (!hasFile && !hasPlate) {
+    public AjaxResult enter(@RequestParam(value = "file", required = false) MultipartFile file,
+                            @RequestParam(value = "communityId", required = false) Long communityId,
+                            @RequestParam(value = "parkingId", required = false) Long parkingId,
+                            @RequestParam(value = "plateNumber", required = false) String plateNumber,
+                            @RequestParam(value = "vehicleType", required = false) String vehicleType) {
+        if ((file == null || file.isEmpty()) && (plateNumber == null || plateNumber.trim().isEmpty())) {
             return AjaxResult.error("请上传车辆照片或手动输入车牌号");
         }
-        PmsVehicleRecord record = pmsVehicleRecordService.handleVehicleEnter(file, communityId, parkingId, plateNumber);
+        PmsVehicleRecord record = pmsVehicleRecordService.handleVehicleEnter(file, communityId, parkingId, plateNumber, vehicleType);
         return success(record);
     }
 

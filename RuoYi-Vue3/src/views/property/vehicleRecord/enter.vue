@@ -102,6 +102,7 @@ function handleEnter() {
   submitting.value = true
   const formData = new FormData()
   formData.append('plateNumber', plateNumber.value.trim())
+  formData.append('vehicleType', vehicleType.value)
   vehicleEnter(formData).then(res => {
     lastRecord.value = res.data
     plateNumber.value = ''

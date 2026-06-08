@@ -104,9 +104,9 @@ public class PmsVehicleRecordServiceImpl implements IPmsVehicleRecordService {
 
     @Override
     @Transactional
-    public PmsVehicleRecord handleVehicleEnter(MultipartFile file, Long communityId, Long parkingId, String plateNumber) {
+    public PmsVehicleRecord handleVehicleEnter(MultipartFile file, Long communityId, Long parkingId, String plateNumber, String manualVehicleType) {
         String plate = resolvePlate(file, plateNumber);
-        return createEntryRecord(plate, communityId, parkingId);
+        return createEntryRecord(plate, communityId, parkingId, manualVehicleType);
     }
 
     @Override
@@ -127,12 +127,14 @@ public class PmsVehicleRecordServiceImpl implements IPmsVehicleRecordService {
     /**
      * 创建入场记录，关联停车位
      */
-    private PmsVehicleRecord createEntryRecord(String plateNumber, Long communityId, Long parkingId) {
+    private PmsVehicleRecord createEntryRecord(String plateNumber, Long communityId, Long parkingId, String manualVehicleType) {
         // 1. 查停车位：是否绑定了该车牌
         PmsParking parking = pmsParkingMapper.selectPmsParkingByPlateNumber(plateNumber);
 
         Long actualParkingId = parkingId;
         Long actualCommunityId = communityId;
+        
+        // 默认类型判定逻辑
         String vehicleType = "0"; // 默认临时车
 
         if (parking != null) {
@@ -148,6 +150,11 @@ public class PmsVehicleRecordServiceImpl implements IPmsVehicleRecordService {
                 parking.setUpdateTime(DateUtils.getNowDate());
                 pmsParkingMapper.updatePmsParking(parking);
             }
+        }
+        
+        // 手动覆盖（如果前端传了非空类型）
+        if (manualVehicleType != null && !manualVehicleType.isEmpty()) {
+            vehicleType = manualVehicleType;
         }
 
         // 2. 创建入场记录

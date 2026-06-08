@@ -12,6 +12,6 @@ public interface IPmsVehicleRecordService {
     int deletePmsVehicleRecordByRecordIds(Long[] recordIds);
     int deletePmsVehicleRecordByRecordId(Long recordId);
     PmsVehicleRecord selectActiveRecordByPlate(String plateNumber);
-    PmsVehicleRecord handleVehicleEnter(MultipartFile file, Long communityId, Long parkingId, String plateNumber);
+    PmsVehicleRecord handleVehicleEnter(MultipartFile file, Long communityId, Long parkingId, String plateNumber, String vehicleType);
     PmsVehicleRecord handleVehicleExit(MultipartFile file, String plateNumber);
 }

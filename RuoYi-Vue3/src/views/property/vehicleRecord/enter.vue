@@ -115,6 +115,7 @@ function handleUpload(file) {
   submitting.value = true
   const formData = new FormData()
   formData.append('file', file.raw)
+  formData.append('vehicleType', vehicleType.value)
   vehicleEnter(formData).then(res => {
     lastRecord.value = res.data
     proxy.$modal.msgSuccess('识别成功：' + res.data.plateNumber + ' 已入场')

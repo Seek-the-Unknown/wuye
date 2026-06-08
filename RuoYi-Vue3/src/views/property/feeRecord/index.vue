@@ -247,38 +247,40 @@
           <span><b>开票时间:</b> {{ parseTime(new Date()) }}</span>
         </div>
         <table class="receipt-table">
-          <tr>
-            <td class="td-label">交款人姓名</td>
-            <td>{{ selectedReceipt.ownerName }}</td>
-            <td class="td-label">对应房号</td>
-            <td>{{ selectedReceipt.roomName }}</td>
-          </tr>
-          <tr>
-            <td class="td-label">所属小区</td>
-            <td>{{ selectedReceipt.communityName }}</td>
-            <td class="td-label">账单周期</td>
-            <td>{{ selectedReceipt.feeMonth }}</td>
-          </tr>
-          <tr>
-            <td class="td-label">收费项目</td>
-            <td>{{ selectedReceipt.typeName }}</td>
-            <td class="td-label">支付渠道</td>
-            <td>在线支付</td>
-          </tr>
-          <tr>
-            <td class="td-label">应收金额</td>
-            <td class="bold">¥ {{ selectedReceipt.feeAmount }}</td>
-            <td class="td-label">实收金额</td>
-            <td class="bold paid-green">¥ {{ selectedReceipt.paidAmount }}</td>
-          </tr>
-          <tr>
-            <td class="td-label">人民币大写</td>
-            <td colspan="3" class="bold uppercase-money">{{ chinesePaidAmount }}</td>
-          </tr>
-          <tr>
-            <td class="td-label">备注信息</td>
-            <td colspan="3">{{ selectedReceipt.remark || '无' }}</td>
-          </tr>
+          <tbody>
+            <tr>
+              <td class="td-label">交款人姓名</td>
+              <td>{{ selectedReceipt.ownerName }}</td>
+              <td class="td-label">对应房号</td>
+              <td>{{ selectedReceipt.roomName }}</td>
+            </tr>
+            <tr>
+              <td class="td-label">所属小区</td>
+              <td>{{ selectedReceipt.communityName }}</td>
+              <td class="td-label">账单周期</td>
+              <td>{{ selectedReceipt.feeMonth }}</td>
+            </tr>
+            <tr>
+              <td class="td-label">收费项目</td>
+              <td>{{ selectedReceipt.typeName }}</td>
+              <td class="td-label">支付渠道</td>
+              <td>在线支付</td>
+            </tr>
+            <tr>
+              <td class="td-label">应收金额</td>
+              <td class="bold">¥ {{ selectedReceipt.feeAmount }}</td>
+              <td class="td-label">实收金额</td>
+              <td class="bold paid-green">¥ {{ selectedReceipt.paidAmount }}</td>
+            </tr>
+            <tr>
+              <td class="td-label">人民币大写</td>
+              <td colspan="3" class="bold uppercase-money">{{ chinesePaidAmount }}</td>
+            </tr>
+            <tr>
+              <td class="td-label">备注信息</td>
+              <td colspan="3">{{ selectedReceipt.remark || '无' }}</td>
+            </tr>
+          </tbody>
         </table>
         <div class="receipt-footer">
           <span><b>收款单位:</b> 物业服务中心</span>

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.property.mapper.PmsVehicleRecordMapper">
+
+    <resultMap type="PmsVehicleRecord" id="PmsVehicleRecordResult">
+        <result property="recordId"        column="record_id"        />
+        <result property="communityId"     column="community_id"     />
+        <result property="parkingId"       column="parking_id"       />
+        <result property="plateNumber"     column="plate_number"     />
+        <result property="entryTime"       column="entry_time"       />
+        <result property="exitTime"        column="exit_time"        />
+        <result property="parkingDuration" column="parking_duration" />
+        <result property="unitPrice"       column="unit_price"       />
+        <result property="feeAmount"       column="fee_amount"       />
+        <result property="paidAmount"      column="paid_amount"      />
+        <result property="payStatus"       column="pay_status"       />
+        <result property="payTime"         column="pay_time"         />
+        <result property="vehicleType"     column="vehicle_type"     />
+        <result property="entryImage"      column="entry_image"      />
+        <result property="exitImage"       column="exit_image"       />
+        <result property="delFlag"         column="del_flag"         />
+        <result property="createBy"        column="create_by"        />
+        <result property="createTime"      column="create_time"      />
+        <result property="updateBy"        column="update_by"        />
+        <result property="updateTime"      column="update_time"      />
+        <result property="remark"          column="remark"           />
+        <result property="communityName"   column="community_name"   />
+        <result property="parkingCode"     column="parking_code"     />
+    </resultMap>
+
+    <sql id="selectPmsVehicleRecordVo">
+        select r.record_id, r.community_id, r.parking_id, r.plate_number,
+               r.entry_time, r.exit_time, r.parking_duration, r.unit_price,
+               r.fee_amount, r.paid_amount, r.pay_status, r.pay_time,
+               r.vehicle_type, r.entry_image, r.exit_image, r.del_flag,
+               r.create_by, r.create_time, r.update_by, r.update_time, r.remark,
+               c.community_name, p.parking_code
+        from pms_vehicle_record r
+        left join pms_community c on r.community_id = c.community_id
+        left join pms_parking p on r.parking_id = p.parking_id
+    </sql>
+
+    <select id="selectPmsVehicleRecordList" parameterType="PmsVehicleRecord" resultMap="PmsVehicleRecordResult">
+        <include refid="selectPmsVehicleRecordVo"/>
+        <where>
+            and r.del_flag = '0'
+            <if test="communityId != null">and r.community_id = #{communityId}</if>
+            <if test="plateNumber != null and plateNumber != ''">and r.plate_number like concat('%', #{plateNumber}, '%')</if>
+            <if test="payStatus != null and payStatus != ''">and r.pay_status = #{payStatus}</if>
+            <if test="vehicleType != null and vehicleType != ''">and r.vehicle_type = #{vehicleType}</if>
+            <if test="entryTime != null">and r.entry_time &gt;= #{entryTime}</if>
+        </where>
+        order by r.entry_time desc
+    </select>
+
+    <select id="selectPmsVehicleRecordByRecordId" parameterType="Long" resultMap="PmsVehicleRecordResult">
+        <include refid="selectPmsVehicleRecordVo"/>
+        where r.record_id = #{recordId}
+    </select>
+
+    <select id="selectActiveRecordByPlate" parameterType="String" resultMap="PmsVehicleRecordResult">
+        <include refid="selectPmsVehicleRecordVo"/>
+        where r.plate_number = #{plateNumber}
+          and r.entry_time is not null
+          and r.exit_time is null
+        order by r.entry_time desc
+        limit 1
+    </select>
+
+    <insert id="insertPmsVehicleRecord" parameterType="PmsVehicleRecord" useGeneratedKeys="true" keyProperty="recordId">
+        insert into pms_vehicle_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="communityId != null">community_id,</if>
+            <if test="parkingId != null">parking_id,</if>
+            <if test="plateNumber != null and plateNumber != ''">plate_number,</if>
+            <if test="entryTime != null">entry_time,</if>
+            <if test="exitTime != null">exit_time,</if>
+            <if test="parkingDuration != null">parking_duration,</if>
+            <if test="unitPrice != null">unit_price,</if>
+            <if test="feeAmount != null">fee_amount,</if>
+            <if test="paidAmount != null">paid_amount,</if>
+            <if test="payStatus != null">pay_status,</if>
+            <if test="payTime != null">pay_time,</if>
+            <if test="vehicleType != null">vehicle_type,</if>
+            <if test="entryImage != null">entry_image,</if>
+            <if test="exitImage != null">exit_image,</if>
+            del_flag, create_by, create_time,
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="communityId != null">#{communityId},</if>
+            <if test="parkingId != null">#{parkingId},</if>
+            <if test="plateNumber != null and plateNumber != ''">#{plateNumber},</if>
+            <if test="entryTime != null">#{entryTime},</if>
+            <if test="exitTime != null">#{exitTime},</if>
+            <if test="parkingDuration != null">#{parkingDuration},</if>
+            <if test="unitPrice != null">#{unitPrice},</if>
+            <if test="feeAmount != null">#{feeAmount},</if>
+            <if test="paidAmount != null">#{paidAmount},</if>
+            <if test="payStatus != null">#{payStatus},</if>
+            <if test="payTime != null">#{payTime},</if>
+            <if test="vehicleType != null">#{vehicleType},</if>
+            <if test="entryImage != null">#{entryImage},</if>
+            <if test="exitImage != null">#{exitImage},</if>
+            '0', #{createBy}, #{createTime},
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updatePmsVehicleRecord" parameterType="PmsVehicleRecord">
+        update pms_vehicle_record
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="communityId != null">community_id = #{communityId},</if>
+            <if test="parkingId != null">parking_id = #{parkingId},</if>
+            <if test="plateNumber != null and plateNumber != ''">plate_number = #{plateNumber},</if>
+            <if test="entryTime != null">entry_time = #{entryTime},</if>
+            <if test="exitTime != null">exit_time = #{exitTime},</if>
+            <if test="parkingDuration != null">parking_duration = #{parkingDuration},</if>
+            <if test="unitPrice != null">unit_price = #{unitPrice},</if>
+            <if test="feeAmount != null">fee_amount = #{feeAmount},</if>
+            <if test="paidAmount != null">paid_amount = #{paidAmount},</if>
+            <if test="payStatus != null">pay_status = #{payStatus},</if>
+            <if test="payTime != null">pay_time = #{payTime},</if>
+            <if test="vehicleType != null">vehicle_type = #{vehicleType},</if>
+            <if test="entryImage != null">entry_image = #{entryImage},</if>
+            <if test="exitImage != null">exit_image = #{exitImage},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where record_id = #{recordId}
+    </update>
+
+    <delete id="deletePmsVehicleRecordByRecordId" parameterType="Long">
+        update pms_vehicle_record set del_flag = '2' where record_id = #{recordId}
+    </delete>
+
+    <delete id="deletePmsVehicleRecordByRecordIds" parameterType="String">
+        update pms_vehicle_record set del_flag = '2' where record_id in
+        <foreach item="recordId" collection="array" open="(" separator="," close=")">
+            #{recordId}
+        </foreach>
+    </delete>
+</mapper>

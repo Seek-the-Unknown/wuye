@@ -49,6 +49,12 @@
         where p.parking_id = #{parkingId}
     </select>
 
+    <select id="selectPmsParkingByPlateNumber" parameterType="String" resultMap="PmsParkingResult">
+        <include refid="selectPmsParkingVo"/>
+        where p.plate_number = #{plateNumber} and p.del_flag = '0'
+        limit 1
+    </select>
+
     <insert id="insertPmsParking" parameterType="PmsParking" useGeneratedKeys="true" keyProperty="parkingId">
         insert into pms_parking
         <trim prefix="(" suffix=")" suffixOverrides=",">

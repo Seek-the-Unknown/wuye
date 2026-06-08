@@ -120,6 +120,13 @@ swagger:
   # 请求前缀
   pathMapping: /dev-api
 
+# 车牌识别服务配置
+lpr:
+  # Python FastAPI 服务地址
+  service-url: http://localhost:8000
+  # 车牌识别置信度阈值
+  min-confidence: 0.7
+
 # 防盗链配置
 referer:
   # 防盗链开关

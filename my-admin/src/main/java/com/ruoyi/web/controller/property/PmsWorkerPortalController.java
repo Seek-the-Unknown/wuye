@@ -46,4 +46,19 @@ public class PmsWorkerPortalController extends BaseController {
         repair.setUpdateBy(getUsername());
         return toAjax(pmsRepairService.updatePmsRepair(repair));
     }
+
+    @PreAuthorize("@ss.hasPermi('property:worker:list')")
+    @PutMapping("/accept/{repairId}")
+    public AjaxResult accept(@PathVariable Long repairId) {
+        PmsRepair repair = pmsRepairService.selectPmsRepairByRepairId(repairId);
+        if (repair == null) {
+            return error("未找到该报修工单");
+        }
+        if (!getUserId().equals(repair.getWorkerId())) {
+            return error("您无权操作非分配给您的工单任务");
+        }
+        repair.setRepairStatus("1");
+        repair.setUpdateBy(getUsername());
+        return toAjax(pmsRepairService.updatePmsRepair(repair));
+    }
 }

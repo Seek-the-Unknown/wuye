@@ -499,8 +499,8 @@
                 <p class="job-desc"><strong>故障描述：</strong>{{ job.desc }}</p>
               </div>
               <div class="job-item-actions">
-                <el-button type="primary" size="default" class="job-action-btn" @click="handleJob(job.id, 'accept')">一键接单</el-button>
-                <el-button type="success" size="default" plain class="job-action-btn" @click="handleJob(job.id, 'complete')">维修完成</el-button>
+                <el-button v-if="job.status === '0'" type="primary" size="default" class="job-action-btn" @click="handleJob(job.realId, 'accept')">一键接单</el-button>
+                <el-button v-if="job.status === '1'" type="success" size="default" plain class="job-action-btn" @click="handleJob(job.realId, 'complete')">维修完成</el-button>
               </div>
             </div>
           </div>
@@ -595,6 +595,7 @@ import { getDashboardStats, getRepairTrend, getFeeCollection, getRecentRepairs, 
 import useUserStore from '@/store/modules/user'
 import { ElMessage } from 'element-plus'
 import request from '@/utils/request'
+import { getWorkerRepairs, acceptWorkerRepair, finishWorkerRepair } from '@/api/property/workerPortal'
 
 const userStore = useUserStore()
 const nickName = computed(() => userStore.nickName || '管理员')
@@ -877,34 +878,72 @@ function submitFeedback() {
   feedbackText.value = ''
 }
 
-// ==================== 3. 维修工人 (Worker) 逻辑与模拟数据 ====================
+// ==================== 3. 维修工人 (Worker) 逻辑与真实数据 ====================
 const workerStats = reactive({
-  todoJobs: 3,
-  doingJobs: 1,
-  completedJobs: 28,
-  rating: 4.9
+  todoJobs: 0,
+  doingJobs: 0,
+  completedJobs: 0,
+  rating: 5.0
 })
 
-const workerJobs = ref([
-  { id: 'WX20260602005', title: '卧室床头插座没电', address: '盛世嘉园 B区5栋803室', owner: '王女士', phone: '138****5678', time: '今天 11:20', priority: 'high', desc: '主卧大床进门右手边床头插座无输出电压，其余区域插座均正常，业主已自行检查电箱未见跳闸。' },
-  { id: 'WX20260602002', title: '卫生间地漏反水严重', address: '盛世嘉园 A区2栋401室', owner: '李先生', phone: '139****1234', time: '今天 09:40', priority: 'medium', desc: '淋浴区下水极其缓慢，水流稍大即反涌，带有明显臭味反溢，需携带管道疏通弹簧和疏通机前往。' },
-  { id: 'WX20260531012', title: '单元门禁磁力锁吸合不严', address: '盛世嘉园 A区4栋单元正门口', owner: '物业服务台提报', phone: '- -', time: '05-31 16:00', priority: 'low', desc: '4栋一单元正门口磁力锁由于长期碰撞吸附不严密，刷卡后绿灯亮但门无法自动弹开，偶尔处于常开状态。' }
-])
+const workerJobs = ref([])
 
 const workerFeedbacks = ref([
   { id: 1, owner: '陈大爷', room: 'A区1栋302室', content: '刘师傅干活真是太利索了！不仅快速修好了漏水的水龙头，还顺手帮我把旁边生锈的置物架螺丝也加固了，态度也特别客气，真心点赞！', rating: 5, date: '昨天' },
   { id: 2, owner: '赵女士', room: 'C区3栋1201室', content: '进门非常自觉戴上了鞋套，服务态度极好。排查电路故障非常有经验，二十分钟换好开关就好了，非常专业放心！', rating: 5, date: '05-30' }
 ])
 
-function handleJob(jobId, type) {
-  if (type === 'accept') {
-    ElMessage.success(`工单 [${jobId}] 接单成功！已更新至您正在维修中的工单，请及时联系业主约定上门时间。`)
-    workerStats.todoJobs--
-    workerStats.doingJobs++
-  } else {
-    ElMessage.success(`工单 [${jobId}] 已提报【维修完毕】！已进入业主确认评价阶段，辛苦了！`)
-    workerStats.doingJobs = Math.max(0, workerStats.doingJobs - 1)
-    workerStats.completedJobs++
+async function loadWorkerData() {
+  try {
+    const res = await getWorkerRepairs({})
+    if (res.code === 200 && res.rows) {
+      const rows = res.rows
+      workerStats.todoJobs = rows.filter(r => r.repairStatus === '0').length
+      workerStats.doingJobs = rows.filter(r => r.repairStatus === '1').length
+      workerStats.completedJobs = rows.filter(r => r.repairStatus === '2' || r.repairStatus === '3').length
+      
+      const activeJobs = rows.filter(r => r.repairStatus === '0' || r.repairStatus === '1')
+      workerJobs.value = activeJobs.map(item => {
+        return {
+          id: 'WX' + item.repairId,
+          realId: item.repairId,
+          title: item.repairTitle,
+          address: item.roomName || '小区公共区域',
+          owner: item.ownerName || '物业提报',
+          phone: item.phone || '-',
+          time: formatTime(item.createTime),
+          priority: item.repairStatus === '0' ? 'high' : 'medium',
+          desc: item.repairContent,
+          status: item.repairStatus
+        }
+      })
+    }
+  } catch (e) {
+    console.error('获取维修工数据失败:', e)
+  }
+}
+
+async function handleJob(realId, type) {
+  try {
+    if (type === 'accept') {
+      const res = await acceptWorkerRepair(realId)
+      if(res.code === 200) {
+        ElMessage.success(`接单成功！已转入正在处理状态，请及时上门。`)
+        loadWorkerData()
+      } else {
+        ElMessage.error(res.msg || '接单失败')
+      }
+    } else {
+      const res = await finishWorkerRepair(realId)
+      if(res.code === 200) {
+        ElMessage.success(`报修工单已提报【维修完毕】！已进入业主评价阶段。`)
+        loadWorkerData()
+      } else {
+        ElMessage.error(res.msg || '操作失败')
+      }
+    }
+  } catch(e) {
+    ElMessage.error('网络请求失败')
   }
 }
 
@@ -1060,6 +1099,8 @@ onMounted(() => {
   if (isAdmin.value) {
     loadAdminData()
     window.addEventListener('resize', handleResize)
+  } else if (isWorker.value) {
+    loadWorkerData()
   } else {
     checkBinding()
     loadOwnerNotices()

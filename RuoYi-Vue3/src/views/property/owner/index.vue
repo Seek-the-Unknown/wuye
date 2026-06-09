@@ -50,6 +50,15 @@
       </el-col>
       <el-col :span="1.5">
         <el-button
+          type="warning"
+          plain
+          icon="Download"
+          @click="handleExport"
+          v-hasPermi="['property:owner:export']"
+        >导出</el-button>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button
           type="success"
           plain
           icon="Edit"
@@ -366,6 +375,13 @@ const handleFileSuccess = (response, file, fileList) => {
 /** 提交上传文件 */
 function submitFileForm() {
   proxy.$refs["uploadRef"].submit();
+}
+
+/** 导出按钮操作 */
+function handleExport() {
+  proxy.download('property/owner/export', {
+    ...queryParams.value
+  }, `owner_${new Date().getTime()}.xlsx`)
 }
 
 getList();
